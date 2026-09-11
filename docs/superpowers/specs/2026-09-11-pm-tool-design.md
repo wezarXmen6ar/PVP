@@ -31,7 +31,7 @@ Landing Page (list)  ────┼─→ New Project     (create)
                                           "Edit Timeline →" opens the sandbox
 ```
 
-Resource Pool is reached as a standing navigation item, not a gate the user must pass through before anything else — you can create or open a project immediately from the landing page. Whether project creation should be *blocked* until the pool has at least some people in it is flagged as an open question (§6).
+Resource Pool is reached as a standing navigation item, not a gate the user must pass through before anything else — you can create or open a project immediately from the landing page, even with an empty pool (§6, item 1).
 
 ## 4. Pages
 
@@ -56,12 +56,14 @@ A list of GD of AI delivery staff. Each entry:
 | Field | Notes |
 |---|---|
 | Name | |
-| Role | Technical Project Manager, Business Analyst, Tech Lead, or Developer (BRD FR-RES-02) |
+| Role | Technical Project Manager, Junior TPM, Business Analyst, Tech Lead, or Developer. Junior TPM is new — not yet in the BRD's role list (FR-RES-02); see §6, item 4. |
 | Availability % | Matches BRD RES-03 — accounts for meetings/admin eating into capacity |
 | Active / inactive toggle | Lets someone who's left or is on long leave be hidden from assignment pickers without deleting their history on past projects (BRD FR-RES-06) |
-| Current workload | Shown directly on this page — which active projects this person is already on, so before opening any project you can see who's free |
+| Current workload | Shown as a **timeline swimlane**, not a text list (validated via mockup) — see below |
 
 This page is the **single source of truth** the New Project and Project Detail pages pull from — there is no free-text entry of a team member's name anywhere else in the tool.
+
+**Workload display (validated via mockup):** the page is a swimlane, not a plain list — one row per person (grouped by role, with the new Junior TPM tier included), and one horizontal bar per active project they're on, all positioned against a shared calendar axis at the top. The same project renders in the same color across every row, so a project's full team is scannable across the page, not just within one person. A Developer whose two bars genuinely overlap in time gets a red hatched marker under the overlapping span — this is the Resource Pool's visual expression of the §5 conflict rule, made visible before you even open a project, not just enforced reactively when assigning. TPMs, Junior TPMs, BAs, and Tech Leads show overlapping bars with no flag — multi-project is expected for those roles.
 
 ### 4.3 New Project
 
@@ -97,10 +99,10 @@ This matches BRD RULE-06 / FR-ASG-04 exactly, but makes explicit what "overlappi
 
 ## 6. Open Questions
 
-1. **Should "New Project" be blocked (or just warned) if the Resource Pool has no active people at all?** Not settled — leaning toward "allow it, warn softly," consistent with the BRD's general principle of warnings over hard blocks, but not confirmed.
-2. **Where does the conflict check actually run** — client-side against cached project date ranges, or does it require a live recalculation? Depends on decisions not yet made about the data/backend layer, explicitly out of scope here (§2).
-3. **Resource Pool page interactivity** was not mocked — only discussed. Before implementation, it likely deserves the same interactive-mockup treatment the timeline got, particularly the "current workload shown per person" view, which has real layout implications (a mini timeline per person? a simple project-count badge? undecided).
-4. **Multiple TPMs, or one TPM per project?** BRD language implies one Technical PM per project, but this was never explicitly re-confirmed during this session's freeform-assignment discussion.
+1. ~~Should "New Project" be blocked if the Resource Pool has no active people at all?~~ **Resolved: no blockers.** A project can be created — and even staffed with nobody, if that's where things stand — regardless of Resource Pool state. Consistent with the BRD's general principle of soft warnings over hard blocks (RULE-06/07).
+2. ~~Where does the conflict check actually run?~~ **Resolved: live recalculation.** Every conflict check walks the other project's blocks from scratch to get its current date range — never a cached/stored value that could go stale. Slower than caching, but always accurate; acceptable at the scale this tool operates at (BRD: ~30–60 active projects).
+3. ~~Resource Pool page interactivity was not mocked.~~ **Resolved via mockup: a timeline swimlane**, detailed above. Two people-list variants were compared (click-to-expand chip list vs. always-visible swimlane); the swimlane was preferred.
+4. ~~Multiple TPMs, or one TPM per project?~~ **Resolved: one lead TPM, plus any number of Junior TPMs as needed.** This introduces a role tier the BRD doesn't currently have — it only defines a single "Technical Project Manager" role (FR-RES-02). Before implementation, the BRD's role list and RULE-08 (multi-project roles) should be revisited to add Junior TPM explicitly, including whether it behaves like a TPM for the freeform-assignment and multi-project rules, or has its own constraints.
 
 ## 7. Relationship to the Timeline Design
 
