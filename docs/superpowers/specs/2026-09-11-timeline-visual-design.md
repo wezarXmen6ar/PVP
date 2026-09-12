@@ -1,9 +1,9 @@
 # Design: Project Timeline / Visual Summary Component
 
 **Status:** Draft — validated through interactive mockup, pending your review
-**Date:** 11 September 2026
+**Date:** 11 September 2026 (revised 12 September 2026 — see §3.1a)
 **Author:** Technical PM, GD of AI (design captured via collaborative mockup session)
-**Related:** [BRD — Portfolio & Resource Management System](../../BRD-portfolio-resource-management.md), specifically FR-VIZ-03 (timeline view), FR-VIZ-04 (variance breakdown), FR-CHG-03/04 (change request impact), FR-HLD-05/06/07 (hold recalculation), RULE-10 (hold recalculation), RULE-12 (hold reasons)
+**Related:** [BRD — Portfolio & Resource Management System](../../BRD-portfolio-resource-management.md), specifically FR-VIZ-03 (timeline view), FR-VIZ-04 (variance breakdown), FR-CHG-03/04 (change request impact), FR-HLD-05/06/07 (hold recalculation), RULE-10 (hold recalculation), RULE-12 (hold reasons); [PM Tool design](2026-09-11-pm-tool-design.md) §6.1 (developer verification workflow, which consumes the weight/sub-step model defined here)
 
 ---
 
@@ -29,10 +29,35 @@ The atomic unit of the timeline. Every block belongs to **exactly one phase** �
 |---|---|---|
 | `name` | string | Required. Two blocks split by a pause keep the *same* name — they are still one phase, just interrupted. |
 | `description` | string | Optional free text. |
-| `phase` | enum | `analysis` \| `development` \| `testing` \| `security` \| `trial` \| `hold` |
+| `phase` | enum | See §3.1a — revised 12 September 2026. |
 | `days` | integer | Working-day effort. For a `hold` block, this is the pause's duration, not effort. |
+| `weight` | percent | See §4.7. Auto-derived from `days` as a share of the project total; a Technical PM can override it, same pattern as a date override (RULE-05). |
+| `owner` | string, optional | Free text, not a structured relationship. See §4.9. |
+| `subSteps` | list, optional | See §4.8. Each item: `{ name, weight }`, weights summing to 100% of *this block's own* share, not the project's. |
 | `reason` | enum, hold only | One of the four BRD hold reasons (RULE-12): resources pulled to higher-priority project; awaiting business owner input; awaiting approval/budget; blocked by external/technical dependency. |
 | `groupId` | internal | Set when a block is produced by splitting an existing one; used only to drive the auto-merge rule (§4.4). Not a user-facing field. |
+
+### 3.1a Revision — canonical phase list (12 September 2026)
+
+Superseding the original six-phase list (`analysis` / `development` / `testing` / `security` / `trial` / `hold`), arrived at by asking what actually earns a phase its own block rather than being folded into another one or left as a sub-step (§4.8): a distinct owner or accountable party, a duration stakeholders want tracked on its own, and not being fine-grained enough to just be a checklist item.
+
+**Revised phase enum:** `requirements` | `analysis` | `development` | `testing` | `security` | `uat` | `deployment` | `trial` | `hold`
+
+| Phase | What changed and why |
+|---|---|
+| **Requirements Gathering** *(new)* | Split out of Analysis. This is where the *business owner*, not GD of AI, is the bottleneck — separating it lets the tool show exactly how long the business took to hand over requirements, distinct from GD of AI's own analysis work. Direct BRD tie-in: this is the same accountability principle behind hold reasons (RULE-12) applied to the front of the project instead of the middle. |
+| **Analysis** | Unchanged in meaning, now scoped specifically to GD of AI's own technical analysis and estimation, once requirements are in hand. |
+| **Development** | Unchanged. |
+| **Testing** | Kept **separate from UAT**, not merged into it — different owner (dev/QA team) and different failure mode (bugs found internally vs. the business rejecting functionality at UAT). |
+| **Security testing** | Unchanged. |
+| **UAT** *(renamed from "Trial")* | Business-user acceptance testing and sign-off — this is what the original "Testing" block's description ("functional test & business sign-off") was already describing. Comes before Deployment. |
+| **Deployment** *(new)* | Release to production, including change-control/approval time — worth tracking on its own since government change-control can genuinely consume real calendar days. |
+| **Trial** | Redefined, not removed: now specifically the *post-deployment* limited pilot with real users, distinct from UAT's pre-launch sign-off. Comes after Deployment. |
+| **Hold** | Unchanged — cross-cutting interrupt, not a sequential phase. |
+
+**"Design" was considered and deliberately not added as a phase** — it doesn't clearly have a distinct owner or a stakeholder who tracks it apart from Analysis or Development, so it fits better as an optional sub-step (§4.8) inside one of those than as its own top-level block.
+
+**No block is required, and none are enforced in any order.** This was already true of the sandbox and remains true under the revised list — a project can use any subset of these phases, in any sequence, or invent a completely different name for a block (`phase` constrains *color/behavior*, not the block's `name`, which is always free text). Formal ordering rules (e.g. "Analysis must precede Development") are a possible future layer, deliberately not built now — the user's explicit instruction was to prioritize flexibility over structure at this stage.
 
 ### 3.2 Timeline
 
@@ -81,6 +106,8 @@ A manually-placed marker representing where the project currently stands — **n
 
 This is explicitly a planning tool, not a live status feed — the user places it to model a scenario ("we are here, and a pause happens now"), and it does not advance on its own.
 
+**Reconciling this with weight-based completion (§4.7–4.8):** these serve two different purposes and are not in conflict. The marker's time-based % is for *scenario planning* inside the sandbox — "if we're here, what does a pause cost." The weight/sub-step model, combined with the developer-reported-then-PM-confirmed verification workflow (PM Tool design §6.1), produces the *actual, real* completion percentage once that workflow exists — based on verified work, not elapsed time. The sandbox marker does not disappear or get replaced; it answers a different question than the real one does.
+
 ### 4.6 Placement and dragging
 
 Every block — whether newly created or already on the timeline — is drag-and-drop placeable at an arbitrary point:
@@ -91,6 +118,30 @@ Every block — whether newly created or already on the timeline — is drag-and
 - A live indicator line follows the cursor during the drag, labeled with the exact date it would land on.
 
 **Known limitation, accepted as out of scope:** the pixel-to-date conversion during drop is not perfectly precise — dropping "on" a specific date can land a day or two off. This was identified and explicitly deferred by the user: *"the date is not accurate... but that is fine, this is just a mockup, don't fix it."* If this component moves toward production, this is the first thing to tighten (§7).
+
+### 4.7 Block weight
+
+Every block carries a `weight` — its share of the project, as a percentage. By default this is **derived automatically** from `days` (a block's day-count ÷ the project's total day-count), never entered independently. This was a deliberate choice over letting weight be freely set: an independent weight field would be a second source of truth that can silently disagree with the schedule (e.g. a block claiming 40% weight while actually being 10% of the days), and validating the two against each other is exactly the kind of complexity the user was trying to avoid by asking for flexibility.
+
+A Technical PM can override the derived weight, following the same pattern already established for calculated dates (RULE-05: calculated, but overridable with the override visibly distinguished from the calculated value). An override is for the rare case where a block's actual importance genuinely doesn't track its day-count — e.g. a short Security Testing block that carries disproportionate risk.
+
+Weights across all of a project's top-level blocks always sum to 100%.
+
+### 4.8 Sub-steps
+
+Any block — not just Development, per explicit correction during this session ("we should add this flexibility for all blocks") — can optionally be broken into sub-steps. Each sub-step is `{ name, weight }`, where weight is that step's share of **its parent block's** weight, not the project's — sub-step weights sum to 100% *within their block*, independently of every other block's internal breakdown.
+
+There is no limit on how many sub-steps a block can have, and having zero is the normal case — most blocks stay a single, unbroken unit. Sub-steps exist specifically for blocks complex enough that tracking real progress inside them matters — Development being the obvious common case, but not the only one.
+
+Sub-steps are the unit the developer-verification workflow (PM Tool design §6.1) reports progress against. A sub-step's own completion is not time-based at all — see that document for the reported/confirmed workflow. This spec defines the *structure* (weighted breakdown); it does not define *who marks a sub-step done*, which is a PM Tool concern, not a timeline-rendering one.
+
+### 4.9 Owner
+
+Every block has an optional `owner` — free text, not a structured relationship to the Resource Pool, a department, or another project, though it will often name one of those informally ("Security Department," "Database Department," "Business Owner," a specific Developer's name). Deliberately kept unstructured for now, per the user's explicit preference for flexibility over enforced structure at this stage; formalizing it into a real relationship (so it could be queried or reported on) is future work, not required now.
+
+**Hold is the one case where this is not a second field.** A Hold block whose reason is "resources pulled to a higher-priority project" already links to the project that displaced it (§3.1, `reason`). That link *is* the Hold's owner — it is not duplicated into a separate owner field alongside it. For the other three hold reasons, `owner` is free text same as any other block, since there's no existing structured link to reuse.
+
+"Design" work needing an owner was the case that prompted this: it might be a Resource Pool Developer, might need a "Designer" role that doesn't exist, or might need no owner at all because the design already exists in another system. Resolved by not forcing the issue — `owner` stays free text and skippable, and no new Resource Pool role was added.
 
 ## 5. Interactions
 
@@ -112,7 +163,7 @@ Two mechanisms coexist: drag-and-drop (arbitrary repositioning, precise, uses th
 
 ## 6. Visual Language
 
-- **Phase colors:** Analysis (light blue-violet), Development (blue), Testing (orange), Security testing (pink), Trial (green) — consistent across the bar, the legend, the template picker, and the side list.
+- **Phase colors:** Analysis (light blue-violet), Development (blue), Testing (orange), Security testing (pink), Trial (green) — consistent across the bar, the legend, the template picker, and the side list. **Not yet assigned:** colors for the three new phases (Requirements Gathering, UAT, Deployment) added in §3.1a — deferred until the next mockup pass on this component.
 - **Hold / pause:** a diagonal grey hatch, never a solid color — visually distinct as "no work," not as a seventh phase color.
 - **Month bands:** alternating faint background stripes behind the bar, labeled with real month names (not "Month 1/2/3") — driven off an actual project start date.
 - **The "now" marker:** a dashed red line, distinct from the blue dashed drag-indicator line, so the two concepts (current position vs. drop target) are never visually confused.
@@ -127,6 +178,9 @@ These are not blocking the sandbox design, but need answers before this becomes 
 3. **Persistence** — this is currently an in-memory sandbox with no save/load beyond a single "load ready project" seed button. Real usage needs the block sequence to be the durable record referenced by BR-04/FR-EST-03 (baseline retention).
 4. **Multi-project portfolio view** — this design is one project's timeline. The BRD's portfolio dashboard (FR-VIZ-02/07) needs many of these shown at once; whether that's many small versions of this same bar or a different visualization is unresolved.
 5. **Holiday calendar** — only weekends are excluded from working-day math right now; RULE-04 calls for configurable public holidays too.
+6. **Colors for the three new phases** (Requirements Gathering, UAT, Deployment) — added 12 September 2026 (§3.1a), not yet assigned.
+7. **Partial credit for "reported but not yet PM-confirmed" sub-steps** — once the verification workflow (PM Tool design §6.1) exists, does a sub-step a developer has marked done but the PM hasn't confirmed count toward the block's weighted completion at all, count partially, or count as zero until confirmed? Not decided — flagged here because it directly affects how this component's weight/sub-step data (§4.7–4.8) gets consumed.
+8. **Sub-step ordering and per-step days** — sub-steps currently have only `name` and `weight`, no day-count or sequence of their own. Whether they eventually need their own duration (for scheduling, not just weighting) is open.
 
 ## 8. What This Design Validates
 
