@@ -15,7 +15,7 @@ This document specifies the minimum page set for the Technical PM–facing side 
 
 **In scope:** page inventory, navigation flow, minimum fields per page, and the team-assignment/conflict-warning rule that connects the Resource Pool to the timeline.
 
-**Out of scope:** visual polish (these are structural/functional decisions, not a finished UI design), the read-only stakeholder visualization page (BRD §7.2), authentication, and backend/data-layer design. Also out of scope: full working mockups of the Resource Pool, Portfolio List, and New Project pages — only the Project Detail page's timeline tie-in was mocked interactively; the rest were settled through direct discussion and should be treated as less rigorously validated than that page.
+**Out of scope:** visual polish (these are structural/functional decisions, not a finished UI design), authentication, and backend/data-layer design. **The read-only stakeholder visualization page (BRD §7.2) was originally out of scope here too, but now has its own document:** [Stakeholder View design](2026-09-12-stakeholder-view-design.md). Also out of scope: full working mockups of the Resource Pool, Portfolio List, and New Project pages — only the Project Detail page's timeline tie-in was mocked interactively; the rest were settled through direct discussion and should be treated as less rigorously validated than that page.
 
 ## 3. Page Inventory & Flow
 
@@ -53,6 +53,8 @@ Team avatars and per-person over-allocation flags were deliberately **left off t
 
 ### 4.2 Resource Pool
 
+> The Junior TPM role introduced below isn't in the BRD's role list — see [Shared Definitions §2](shared-definitions.md#2-roles), pending B5.
+
 A list of GD of AI delivery staff. Each entry:
 
 | Field | Notes |
@@ -71,6 +73,8 @@ This page is the **single source of truth** the New Project and Project Detail p
 
 ### 4.3 New Project
 
+> This section's field list conflicts with the BRD on two points — required fields (FR-PRJ-01) and department capture level (FR-PRJ-04) — see [Shared Definitions §5–6](shared-definitions.md#5-department-capture-level), pending B6/B7.
+
 Creation form, expanded from the original minimal five fields after direct review (validated via mockup):
 
 - Name
@@ -87,6 +91,8 @@ Team assignment does **not** happen at creation — a new project starts with no
 **Explicitly rejected as top-level New Project fields**, and why: budget/cost and document attachments (both already out of scope per BRD §8.2); the specific sub-department (a project's underlying record could still capture this, but it wasn't added as a field here — flagged as a possible gap, since the list only ever shows the rolled-up General Department, §4.1); project reference codes, target dates, directive numbers, sponsors, categories, data sensitivity, and expected user base (discussed as a candidate list of ten, all but the value-justification field above were turned down).
 
 ### 4.4 Project Detail
+
+> The team-assignment picker described below has no allocation-% field, which the BRD's over-allocation rule (RULE-07) requires — see [Shared Definitions §4](shared-definitions.md#4-assignment-allocation-), pending B4.
 
 Follows the "compact preview + button" layout validated in the timeline design session (Option 2 of three mocked layouts):
 
@@ -106,9 +112,23 @@ Mechanically, this is exactly what the BRD's conceptual data model already antic
 
 - Each person on the Team & Resources card gets a **"Replace"** action alongside add/remove.
 - Replacing ends that person's assignment as of a chosen date (defaulting to today) — this record is **kept, not deleted**, consistent with §4.2's no-hard-deletion rule — and opens the same role-grouped picker to choose who takes over, whose assignment starts from that same date.
-- The swap is logged to Recent Activity ("Yousef M. replaced by Lina R. as Developer — Oct 12, 2026"), and the Resource Pool's swimlane reflects it accurately: Yousef's bar for this project now ends at the swap date instead of running the full original span; Lina's bar starts there and runs to the project's end.
+- The swap writes a `resource_swapped` entry to the project's [Event Log](2026-09-11-timeline-visual-design.md §3.3) — always `dayImpact: 0`, since a swap never touches the schedule — and appears in Recent Activity ("Yousef M. replaced by Lina R. as Developer — Oct 12, 2026"). The Resource Pool's swimlane reflects it accurately: Yousef's bar for this project now ends at the swap date instead of running the full original span; Lina's bar starts there and runs to the project's end.
 
 Not yet decided: whether a reason/note should be required on a swap (parallel to the Hold reason taxonomy) or left as free text. Leaning toward optional free text — a swap isn't a business-rule event like a hold is, just a record-keeping one.
+
+### 4.6 Change Request Workflow *(added 12 September 2026 — resolves [design audit](../../design-audit-2026-09-12.md) recommendation #2, the largest gap it identified)*
+
+The mission's first bullet — *"a new requirement is answered with the man-days it adds and the date it moves, before it is accepted"* — had no design anywhere until now. Three steps:
+
+1. **Raise.** Title, description, requester, requesting department, effort in man-days per role (BRD FR-EST-01). **Note a real inconsistency here, not yet resolved:** the timeline sandbox's block model (Timeline design §3.1/§4.7) only has a single undifferentiated `days` number per block, with no role breakdown — it cannot currently represent "man-days per role" at all. This change request field and the block model it's supposed to feed are built on two different effort models. See the [Shared Definitions](shared-definitions.md) file, effort model entry, and design audit recommendation #3 — this is queued to be resolved, not resolved here.
+2. **Preview the impact, before anything is committed.** The calculated day-impact and the resulting revised delivery date are shown — this is the actual moment the mission describes, and matches BRD FR-CHG-10 exactly (view impact without committing it).
+3. **Record the decision — made outside this system.** The approval decision itself is not made inside PRMS — it happens in a meeting, over email, wherever the organisation actually makes it. What the PM does here is **record that it happened**, and attach a single piece of proof: a PDF or an email, evidencing the approval. This attachment matters specifically because it will be needed later — when a stakeholder is looking at the [Stakeholder View's replay feature](2026-09-12-stakeholder-view-design.md §4.3) and asks "did we actually agree to this," the proof is one click away.
+
+On recording approval, the change request writes one entry to the project's [Event Log](2026-09-11-timeline-visual-design.md §3.3) (`cr_approved`, with `dayImpact` and the attached `proofDocument`) and appears in Recent Activity. This is the only way a delivery date is allowed to move due to new scope — the sandbox itself does not commit day-impact changes to the Event Log on every drag; only an approved change request (or a hold) does.
+
+**This is a single proof-of-approval attachment per change request, not a document repository.** The BRD explicitly excludes general document management (§8.2) — that exclusion stands. This is narrower: one file, evidencing one decision, kept for later reference.
+
+**Not yet designed:** what a rejected or withdrawn change request looks like on screen (FR-CHG-05/07 already define the states; no UI has been sketched for them), and where exactly on Project Detail the "Raise a change request" action lives.
 
 ## 5. The Assignment Conflict Rule
 
@@ -131,6 +151,8 @@ This matches BRD RULE-06 / FR-ASG-04 exactly, but makes explicit what "overlappi
 
 ### Developer progress reporting, with PM verification
 
+> This idea requires Developer accounts, which directly contradicts BRD §7.1 ("Developers are modelled as a managed resource, not as active system users") — see [Shared Definitions §7](shared-definitions.md#7-developer-system-access), pending B8.
+
 Raised twice, connecting to two rounds of discussion: first as a bare idea ("a screen for developers to update their progress — we'll get into that later"), then, once the timeline design gained a weight/sub-step model (see [Timeline design](2026-09-11-timeline-visual-design.md) §4.7–4.8), the actual mechanism became clear:
 
 - **A block's completion is not time-based** — it's based on which of its sub-steps have been verified as actually done. This directly answers a limitation the timeline spec flagged in its own §4.5: today's % complete in the sandbox is purely "days elapsed," not "work confirmed."
@@ -143,3 +165,7 @@ This is still explicitly **not designed, only scoped** — the user's instructio
 ## 7. Relationship to the Timeline Design
 
 This document assumes the [timeline/visual-summary design](2026-09-11-timeline-visual-design.md) as-is, including its own open questions (holiday calendar, drop-date precision, persistence). Nothing here resolves those; the "Edit Timeline" button is simply a doorway into that already-specified sandbox. Where that document's open questions get resolved — particularly persistence and real project data — will directly affect how the Project Detail page's timeline preview and the assignment conflict rule (§5) actually get implemented.
+
+## 8. Relationship to the Stakeholder View
+
+§4.6's Change Request Workflow is the write side of a pair whose read side is the [Stakeholder View design](2026-09-12-stakeholder-view-design.md) — a change request approved here becomes an Event Log entry there, viewable (proof attachment included) in that document's replay feature. Neither document duplicates the other's content; each covers one direction.

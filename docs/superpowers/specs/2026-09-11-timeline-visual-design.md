@@ -19,6 +19,8 @@ The core idea that survived every iteration: **a single vertical bar, built bott
 
 **Out of scope:** wiring this to real project/resource data, authentication, multi-user concurrency, persistence, and the capacity/assignment engine described in the BRD. This is validated as a standalone sandbox; integrating it into the wider PRMS application is a separate follow-on (see §7).
 
+**Confirmed role of this sandbox, settled 12 September 2026:** it is a PM-side tool only, in two modes — the PM's own private planning surface, and a tool the PM drives live (screen-shared or projected) in a stakeholder meeting to demonstrate a proposed change's effect. It never appears on a stakeholder's own screen or under their own access — that role belongs entirely to the separate, read-only [Stakeholder View](2026-09-12-stakeholder-view-design.md), which this document does not define. See that document's §6 for the full reasoning.
+
 ## 3. Data Model
 
 ### 3.1 Block
@@ -38,6 +40,8 @@ The atomic unit of the timeline. Every block belongs to **exactly one phase** �
 | `groupId` | internal | Set when a block is produced by splitting an existing one; used only to drive the auto-merge rule (§4.4). Not a user-facing field. |
 
 ### 3.1a Revision — canonical phase list (12 September 2026)
+
+> Conflicts with the BRD's status enum (FR-PRJ-02/RULE-01) and phase order — see [Shared Definitions §1](shared-definitions.md#1-phase--status-list), pending B1/B2.
 
 Superseding the original six-phase list (`analysis` / `development` / `testing` / `security` / `trial` / `hold`), arrived at by asking what actually earns a phase its own block rather than being folded into another one or left as a sub-step (§4.8): a distinct owner or accountable party, a duration stakeholders want tracked on its own, and not being fine-grained enough to just be a checklist item.
 
@@ -64,6 +68,27 @@ Superseding the original six-phase list (`analysis` / `development` / `testing` 
 An **ordered list** of blocks. Order is chronological — index 0 is the first thing that happens (rendered at the bottom of the bar), and each subsequent block picks up immediately where the previous one ends. There is no independent "start date" per block; a block's start is always the previous block's end (or the project start date, for index 0).
 
 This is a deliberate simplification: the model has no explicit resource assignment, no per-block owner, and no notion of parallel work. It represents **one continuous thread of time**, which is sufficient for the timeline/impact-visualization use case but is *not* the same model as the BRD's capacity engine (which allocates multiple people across concurrent projects). Reconciling the two is a follow-on question (§7).
+
+### 3.3 Event Log *(added 12 September 2026 — see the [design audit](../../design-audit-2026-09-12.md), recommendation #1)*
+
+The durable record the sandbox itself deliberately lacks. The sandbox's block sequence is a **mutable planning surface** — dragging, splitting, and merging leave no trace, by design, because that's what makes it a good sandbox to think in. But nothing downstream (the [Stakeholder View](2026-09-12-stakeholder-view-design.md), the Portfolio List's variance column, RULE-11's reconciliation) can be built on a surface that erases its own history. The Event Log is the answer: a separate, **append-only** list, distinct from the block sequence, that a project's plan writes to when something is *committed* — not on every drag inside the sandbox, but when a change request is approved or a hold starts/resumes.
+
+| Field | Type | Notes |
+|---|---|---|
+| `date` | date | When this event happened. |
+| `type` | enum | `baseline_set` \| `cr_approved` \| `hold_started` \| `hold_resumed` \| `override_applied` \| `resource_swapped` |
+| `description` | string | Free text — what changed. |
+| `dayImpact` | integer | Working days added to the project's delivery date by this event. Zero or absent for `hold_started` (the impact isn't known until `hold_resumed` closes it out). Always `0` for `resource_swapped` (see below). For `override_applied`, the difference between the override date and the calculated date it replaced — see below. |
+| `cause` | string | Who or what caused this — a requesting department for a CR, a displacing project reference for a hold. For `override_applied`, the PM's required justification (RULE-05). |
+| `proofDocument` | file reference, optional | Set on `cr_approved` events. See [PM Tool design §4.6](2026-09-11-pm-tool-design.md) — this is the attached PDF or email evidencing that the approval genuinely happened, even though the approval decision itself was made outside this system. |
+
+**Two entry types added 13 September 2026, closing a real gap:** the original four types couldn't account for two things RULE-11 itself requires as terms in its reconciliation formula — a manual date override (RULE-05) and a mid-project resource swap (PM Tool design §4.5, which says a swap is "logged to Recent Activity" without ever saying where that log actually is). Both now write here:
+- `override_applied` — a Technical PM overrides a calculated duration or date. Its `dayImpact` is the delta between the override and the calculation it replaced, so it folds into the same additive sum as every other event, and its `cause` field carries the required justification.
+- `resource_swapped` — always `dayImpact: 0`. It exists purely so the swap described in PM Tool §4.5 has a durable record at all; per that section's own reasoning, a swap never touches the schedule, so it must never contribute to the date sum.
+
+**Current delivery date is always `baseline_set`'s date plus the sum of every subsequent entry's `dayImpact`.** This is RULE-11 made literal rather than aspirational — there is no code path that can move a delivery date without an entry existing to explain the movement, because the date *is* the sum, not an independently-stored value that a reconciliation rule checks against. This now holds for all four ways a date can legitimately move (change request, hold, override) plus the one event that must never move it (resource swap) — not just the two it originally covered.
+
+This is also, deliberately, the entire data source for the [Stakeholder View](2026-09-12-stakeholder-view-design.md) — including its replay feature, which is only possible because this log exists: replaying a project's history means reconstructing what was true as of any given date, which requires the sequence of what-changed-when to actually be retained somewhere.
 
 ## 4. Business Rules
 
@@ -121,6 +146,8 @@ Every block — whether newly created or already on the timeline — is drag-and
 
 ### 4.7 Block weight
 
+> The `days`-only block model this section builds on conflicts with the BRD's man-days-per-role effort model — see [Shared Definitions §3](shared-definitions.md#3-effort-model), pending B3.
+
 Every block carries a `weight` — its share of the project, as a percentage. By default this is **derived automatically** from `days` (a block's day-count ÷ the project's total day-count), never entered independently. This was a deliberate choice over letting weight be freely set: an independent weight field would be a second source of truth that can silently disagree with the schedule (e.g. a block claiming 40% weight while actually being 10% of the days), and validating the two against each other is exactly the kind of complexity the user was trying to avoid by asking for flexibility.
 
 A Technical PM can override the derived weight, following the same pattern already established for calculated dates (RULE-05: calculated, but overridable with the override visibly distinguished from the calculated value). An override is for the rare case where a block's actual importance genuinely doesn't track its day-count — e.g. a short Security Testing block that carries disproportionate risk.
@@ -175,7 +202,7 @@ These are not blocking the sandbox design, but need answers before this becomes 
 
 1. **Drop-date precision** — deferred by explicit user instruction (§4.6); needs a real fix before production use.
 2. **Relationship to the capacity/assignment engine** — this model is single-threaded (one sequence of blocks); the BRD's resourcing model is multi-project, multi-person. How a real project's timeline block maps to actual assigned Developers/BAs/Tech Leads is undecided.
-3. **Persistence** — this is currently an in-memory sandbox with no save/load beyond a single "load ready project" seed button. Real usage needs the block sequence to be the durable record referenced by BR-04/FR-EST-03 (baseline retention).
+3. **Persistence** — this is currently an in-memory sandbox with no save/load beyond a single "load ready project" seed button. **Partially addressed 12 September 2026:** §3.3's Event Log defines *what* the durable record looks like (referenced by BR-04/FR-EST-03), but not *where or how* it's actually stored — no backend/database decision has been made.
 4. **Multi-project portfolio view** — this design is one project's timeline. The BRD's portfolio dashboard (FR-VIZ-02/07) needs many of these shown at once; whether that's many small versions of this same bar or a different visualization is unresolved.
 5. **Holiday calendar** — only weekends are excluded from working-day math right now; RULE-04 calls for configurable public holidays too.
 6. **Colors for the three new phases** (Requirements Gathering, UAT, Deployment) — added 12 September 2026 (§3.1a), not yet assigned.
