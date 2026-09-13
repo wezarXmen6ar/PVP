@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PRMS — Visual Design</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Noto+Kufi+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --ink:#1C2B2E;
@@ -30,6 +30,7 @@
     --rust-soft:#EFD6CD;
     --font-display:'Fraunces', Georgia, serif;
     --font-ui:'IBM Plex Sans', -apple-system, sans-serif;
+    --font-ar:'Noto Kufi Arabic', 'IBM Plex Sans', -apple-system, sans-serif;
     --radius:3px;
   }
   *{box-sizing:border-box;}
@@ -42,19 +43,35 @@
     line-height:1.5;
     -webkit-font-smoothing:antialiased;
   }
-  .num{font-variant-numeric:tabular-nums;}
+  html[dir="rtl"] body{font-family:var(--font-ar);}
+  html[dir="rtl"] .peheader .title, html[dir="rtl"] .wsheader h2, html[dir="rtl"] .topbar h1,
+  html[dir="rtl"] .sectiontitle, html[dir="rtl"] .bignum, html[dir="rtl"] .stat-value,
+  html[dir="rtl"] .brand-mark, html[dir="rtl"] .promiseblock .to{font-family:var(--font-ar);}
+  .num{font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate;}
   a{color:inherit;}
   button{font-family:inherit;cursor:pointer;}
   :focus-visible{outline:2px solid var(--brass);outline-offset:2px;}
+  [data-en]:not([data-ar]){}
+
+  /* ---------- LTR-island helper (timelines/charts keep chronological L→R regardless of page language) ---------- */
+  .ltr-island{direction:ltr;}
+  .ltr-island .rlabel, .ltr-island .who, .ltr-island .role{unicode-bidi:isolate;}
+
+  /* ---------- lang toggle ---------- */
+  .langtoggle{display:flex;border:1px solid rgba(255,255,255,.18);border-radius:20px;overflow:hidden;margin:0 14px 14px;}
+  .langtoggle button{flex:1;background:transparent;border:none;color:#9FB0A8;font-size:0.76rem;padding:6px 0;font-weight:500;}
+  .langtoggle button.sel{background:var(--brass);color:#fff;}
 
   /* ---------- shell ---------- */
   .shell{display:flex;min-height:100vh;}
+  html[dir="rtl"] .shell{flex-direction:row-reverse;}
   .sidebar{
     width:228px;flex-shrink:0;background:var(--ink);color:#DCE3DA;
     display:flex;flex-direction:column;padding:22px 0 16px;
   }
   .brand{padding:0 20px 20px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:8px;}
   .brand-mark{font-family:var(--font-display);font-size:1.5rem;font-weight:600;color:#fff;letter-spacing:0.01em;}
+  html[dir="rtl"] .brand-mark{letter-spacing:0;}
   .brand-sub{font-size:0.74rem;color:#9FB0A8;margin-top:3px;line-height:1.4;}
   nav.primary{flex:1;padding:10px 10px;}
   .navitem{
@@ -63,9 +80,11 @@
     border:none;background:transparent;width:100%;text-align:left;
     border-left:2px solid transparent;
   }
+  html[dir="rtl"] .navitem{text-align:right;border-left:none;border-right:2px solid transparent;}
   .navitem svg{width:16px;height:16px;flex-shrink:0;opacity:.85;}
   .navitem:hover{background:rgba(255,255,255,.06);color:#fff;}
   .navitem.active{background:rgba(156,107,46,.22);color:#fff;border-left:2px solid var(--brass);}
+  html[dir="rtl"] .navitem.active{border-left:none;border-right:2px solid var(--brass);}
   .navdivider{height:1px;background:rgba(255,255,255,.08);margin:10px 14px;}
   .navlabel{font-size:0.68rem;text-transform:none;color:#7C9086;padding:10px 22px 4px;letter-spacing:0.02em;}
   .userchip{margin:6px 14px 0;padding:10px 12px;border-top:1px solid rgba(255,255,255,.1);padding-top:14px;}
@@ -111,7 +130,7 @@
   .stamp{
     display:inline-block;padding:3px 9px;border:1.5px double var(--brass);color:var(--brass);
     font-weight:600;font-size:0.75rem;letter-spacing:0.02em;transform:rotate(-1.2deg);
-    border-radius:2px;background:var(--brass-wash);
+    border-radius:2px;background:var(--brass-wash);direction:ltr;unicode-bidi:isolate;
   }
 
   /* ---------- stats rows ---------- */
@@ -133,10 +152,13 @@
   .switch::after{content:'';position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;background:#fff;transition:transform .15s;}
   .switch.on{background:var(--teal);}
   .switch.on::after{transform:translateX(15px);}
+  html[dir="rtl"] .switch::after{left:auto;right:2px;}
+  html[dir="rtl"] .switch.on::after{transform:translateX(-15px);}
 
   table.portfolio{width:100%;border-collapse:collapse;background:var(--surface-raised);border:1px solid var(--rule);}
   table.portfolio th{text-align:left;font-weight:500;font-size:0.74rem;color:var(--ink-soft);
     padding:10px 14px;border-bottom:1px solid var(--rule);background:var(--surface);}
+  html[dir="rtl"] table.portfolio th{text-align:right;}
   table.portfolio td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:middle;font-size:0.85rem;}
   table.portfolio tr:last-child td{border-bottom:none;}
   table.portfolio tr:hover td{background:var(--surface);}
@@ -145,11 +167,14 @@
   .variance{font-family:var(--font-display);font-weight:600;font-size:1rem;}
   .variance.up{color:var(--brass);}
   .variance.flat{color:var(--teal);font-family:var(--font-ui);font-weight:500;font-size:0.82rem;}
+  html[dir="rtl"] .variance.flat{font-family:var(--font-ar);}
   .stale{font-size:0.7rem;color:var(--rust);border:1px solid var(--rust);border-radius:3px;padding:1px 6px;margin-left:6px;}
+  html[dir="rtl"] .stale{margin-left:0;margin-right:6px;}
 
   /* ---------- inbox ---------- */
   .inboxgroup{margin-bottom:26px;}
   .inboxgroup h3{font-family:var(--font-display);font-size:1rem;font-weight:600;margin:0 0 2px;}
+  html[dir="rtl"] .inboxgroup h3{font-family:var(--font-ar);}
   .inboxgroup .count{color:var(--ink-faint);font-weight:400;font-size:0.85rem;}
   .inboxrow{display:flex;align-items:center;justify-content:space-between;gap:14px;
     padding:12px 4px;border-bottom:1px solid var(--rule);}
@@ -158,6 +183,36 @@
   .inboxrow .lead .proj{color:var(--ink-faint);font-size:0.78rem;display:block;margin-top:1px;}
   .inboxrow .age{font-size:0.76rem;color:var(--ink-faint);white-space:nowrap;}
   .inboxrow .act{font-size:0.8rem;color:var(--brass);font-weight:500;white-space:nowrap;background:none;border:none;padding:0;}
+
+  /* ---------- inbox: attention list (project-first, badges not sentences) ---------- */
+  .attnlist{display:flex;flex-direction:column;gap:8px;}
+  .attnrow{display:flex;align-items:center;justify-content:space-between;gap:14px;
+    padding:13px 16px;border:1px solid var(--rule);border-radius:var(--radius);
+    background:var(--surface-raised);cursor:pointer;}
+  .attnrow:hover{background:var(--surface);border-color:var(--rule-strong);}
+  .attnrow .aname{font-weight:600;font-size:0.9rem;flex:1;min-width:0;}
+  .attnrow .abadges{display:flex;gap:6px;flex-wrap:wrap;}
+  .attnrow .aarrow{color:var(--ink-faint);font-size:1rem;flex-shrink:0;transform:scaleX(-1);}
+  html[dir="rtl"] .attnrow .aarrow{transform:scaleX(1);}
+  .abadge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:14px;
+    font-size:0.74rem;border:1px solid var(--rule-strong);background:var(--surface);white-space:nowrap;}
+  .abadge .adot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+  .abadge.confirm{border-color:var(--teal);color:#234339;background:var(--teal-soft);}
+  .abadge.confirm .adot{background:var(--teal);}
+  .abadge.cr{border-color:var(--amber);color:#5C4408;background:var(--amber-soft);}
+  .abadge.cr .adot{background:var(--amber);}
+  .abadge.hold{border-color:var(--violet);color:#3E3352;background:var(--violet-soft);}
+  .abadge.hold .adot{background:var(--violet);}
+  .abadge.stale{border-color:var(--rust);color:#6E2A18;background:var(--rust-soft);}
+  .abadge.stale .adot{background:var(--rust);}
+
+  .cleanline{display:flex;align-items:center;justify-content:space-between;margin-top:8px;
+    padding:11px 16px;border:1px dashed var(--rule-strong);border-radius:var(--radius);
+    color:var(--ink-soft);font-size:0.83rem;cursor:pointer;}
+  .cleanline:hover{background:var(--surface);}
+  .cleantoggle{color:var(--brass);font-weight:500;font-size:0.78rem;}
+  .cleanlist{display:none;padding:10px 16px 2px;font-size:0.8rem;color:var(--ink-faint);}
+  .cleanlist.show{display:block;}
 
   /* ---------- workspace cards ---------- */
   .wsheader{background:var(--surface-raised);border:1px solid var(--rule);border-radius:var(--radius);
@@ -169,15 +224,25 @@
   .cardgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:start;}
   .card{background:var(--surface-raised);border:1px solid var(--rule);border-radius:var(--radius);
     padding:16px 18px;border-left:3px solid var(--rule-strong);}
+  html[dir="rtl"] .card{border-left:1px solid var(--rule);border-right:3px solid var(--rule-strong);}
   .card.wide{grid-column:span 3;}
   .card.half{grid-column:span 1;}
   .card h4{margin:0 0 12px;font-size:0.78rem;color:var(--ink-soft);font-weight:600;}
+  .cardhead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px;}
+  .cardhead h4{margin:0;}
+  .cardhead .abadge{font-size:0.68rem;padding:2px 8px;}
   .card--plan{border-left-color:var(--brass);}
   .card--team{border-left-color:var(--teal);}
   .card--cr{border-left-color:var(--amber);}
   .card--hold{border-left-color:var(--violet);}
   .card--evidence{border-left-color:var(--ink-soft);}
   .card--history{border-left-color:var(--rust);}
+  html[dir="rtl"] .card--plan{border-right-color:var(--brass);}
+  html[dir="rtl"] .card--team{border-right-color:var(--teal);}
+  html[dir="rtl"] .card--cr{border-right-color:var(--amber);}
+  html[dir="rtl"] .card--hold{border-right-color:var(--violet);}
+  html[dir="rtl"] .card--evidence{border-right-color:var(--ink-soft);}
+  html[dir="rtl"] .card--history{border-right-color:var(--rust);}
 
   .bignum{font-family:var(--font-display);font-size:2rem;font-weight:600;line-height:1;}
   .bignum-label{font-size:0.76rem;color:var(--ink-soft);margin-top:5px;}
@@ -195,6 +260,8 @@
   .personrow{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule);font-size:0.84rem;}
   .personrow:last-child{border-bottom:none;}
   .personrow .alloc{color:var(--ink-faint);font-size:0.78rem;}
+  .rowflag{font-size:0.72rem;padding:2px 8px;border-radius:12px;white-space:nowrap;}
+  .rowflag.confirm{background:var(--teal-soft);color:#234339;}
 
   .crrow, .holdrow{padding:9px 0;border-bottom:1px solid var(--rule);font-size:0.84rem;}
   .crrow:last-child, .holdrow:last-child{border-bottom:none;}
@@ -205,8 +272,10 @@
   .evidencerow svg{width:14px;height:14px;color:var(--ink-faint);flex-shrink:0;}
 
   .ledgerrow{display:grid;grid-template-columns:64px 1fr auto;gap:10px;padding:8px 0;border-bottom:1px solid var(--rule);font-size:0.82rem;}
+  html[dir="rtl"] .ledgerrow{grid-template-columns:auto 1fr 64px;}
   .ledgerrow:last-child{border-bottom:none;}
   .ledgerrow .date{color:var(--ink-faint);font-size:0.76rem;}
+  html[dir="rtl"] .ledgerrow .date{order:3;text-align:left;direction:ltr;}
   .ledgerrow .impact{font-weight:600;font-family:var(--font-display);}
   .ledgerrow .impact.up{color:var(--brass);}
   .ledgerrow .impact.zero{color:var(--ink-faint);font-family:var(--font-ui);font-weight:400;}
@@ -220,7 +289,7 @@
   .ruler{display:grid;grid-template-columns:130px repeat(30,22px);align-items:center;font-size:0.68rem;color:var(--ink-faint);margin-bottom:6px;}
   .ruler .rcell{text-align:center;border-left:1px solid var(--rule);padding-bottom:2px;}
   .blockrow{display:grid;grid-template-columns:130px repeat(30,22px);align-items:center;height:34px;position:relative;}
-  .blockrow .rlabel{font-size:0.78rem;padding-right:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .blockrow .rlabel{font-size:0.78rem;padding-right:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right;direction:rtl;}
   .blockbar{grid-row:1;height:22px;border-radius:3px;display:flex;align-items:center;justify-content:center;
     font-size:0.68rem;color:#fff;font-weight:500;white-space:nowrap;overflow:hidden;position:relative;}
   .blockbar.done{background:var(--ink-faint);}
@@ -239,6 +308,7 @@
   .diffpanel.show{display:block;}
   .diffpanel h4{margin:0 0 8px;font-size:0.82rem;color:#5C3D18;}
   .diffpanel ul{margin:0;padding-left:18px;font-size:0.85rem;color:#3E2A11;}
+  html[dir="rtl"] .diffpanel ul{padding-left:0;padding-right:18px;}
   .diffpanel li{margin-bottom:4px;}
 
   /* ---------- resource pool ---------- */
@@ -254,7 +324,7 @@
   .swrow{display:grid;grid-template-columns:170px repeat(24,26px);align-items:center;border-bottom:1px solid var(--rule);height:44px;}
   .swrow:last-child{border-bottom:none;}
   .swrow.hidden{display:none;}
-  .swrow .who{padding:0 10px;}
+  .swrow .who{padding:0 10px;text-align:right;direction:rtl;}
   .swrow .who b{font-size:0.83rem;display:block;}
   .swrow .who span{font-size:0.72rem;color:var(--ink-faint);}
   .swbar{grid-row:1;height:20px;border-radius:3px;background:var(--teal);position:relative;}
@@ -283,6 +353,7 @@
   input[type=range]{width:100%;margin-top:14px;accent-color:var(--brass);}
 
   .sectiontitle{font-family:var(--font-display);font-size:1.1rem;margin:26px 0 10px;}
+  html[dir="rtl"] .sectiontitle{font-family:var(--font-ar);}
   .sectiontitle:first-child{margin-top:0;}
 
   /* ---------- replay ---------- */
@@ -291,7 +362,9 @@
   .replaydatebox .asof{color:var(--ink-soft);}
   .replaydatebox .note{display:block;font-size:0.72rem;color:var(--ink-faint);margin-top:2px;}
   .replaydatebox .projdate{text-align:right;}
+  html[dir="rtl"] .replaydatebox .projdate{text-align:left;}
   .replaydatebox .projdate b{font-family:var(--font-display);color:var(--brass);font-size:1.15rem;display:block;}
+  html[dir="rtl"] .replaydatebox .projdate b{font-family:var(--font-ar);}
   .replaybarwrap{background:var(--surface-raised);border:1px solid var(--rule);border-radius:var(--radius);padding:22px 24px 26px;}
   .eventflags{position:relative;height:16px;margin-bottom:2px;}
   .eventflag{position:absolute;top:0;width:11px;height:11px;border-radius:50%;background:var(--surface-raised);
@@ -313,15 +386,17 @@
   .previewseg{position:absolute;top:9px;bottom:9px;border:1.5px dashed var(--amber);
     background:var(--amber-soft);z-index:2;border-radius:0 3px 3px 0;display:none;}
   .playhead{position:absolute;top:-8px;bottom:-8px;width:2px;background:var(--rust);z-index:4;transition:left .4s ease;}
-  .playhead::before{content:'today';position:absolute;top:-16px;left:50%;transform:translateX(-50%);
+  .playhead::before{content:attr(data-label);position:absolute;top:-16px;left:50%;transform:translateX(-50%);
     font-size:0.62rem;color:var(--rust);white-space:nowrap;}
   .tracklabels{display:flex;justify-content:space-between;font-size:0.68rem;color:var(--ink-faint);margin-bottom:16px;}
   .stopsrow{display:flex;gap:6px;flex-wrap:wrap;}
   .stopbtn{flex:1;min-width:118px;padding:8px 10px;border:1px solid var(--rule-strong);background:var(--surface-raised);
     border-radius:var(--radius);font-size:0.74rem;color:var(--ink-soft);text-align:left;}
-  .stopbtn span{display:block;color:var(--ink-faint);font-size:0.7rem;margin-top:2px;}
+  html[dir="rtl"] .stopbtn{text-align:right;}
+  .stopbtn span{display:block;color:var(--ink-faint);font-size:0.7rem;margin-top:2px;direction:ltr;text-align:inherit;}
   .stopbtn.active{border-color:var(--brass);background:var(--brass-wash);color:var(--ink);}
   .callout{margin-top:16px;padding:14px 18px;background:var(--surface);border-left:3px solid var(--brass);border-radius:var(--radius);}
+  html[dir="rtl"] .callout{border-left:none;border-right:3px solid var(--brass);}
   .callout-what{font-weight:600;font-size:0.92rem;margin-bottom:4px;}
   .callout-meta{font-size:0.82rem;color:var(--ink-soft);}
   .callout-quiet{font-size:0.76rem;color:var(--ink-faint);margin-top:6px;font-style:italic;}
@@ -334,8 +409,10 @@
 
   @media (max-width:980px){
     .shell{flex-direction:column;}
+    html[dir="rtl"] .shell{flex-direction:column;}
     .sidebar{width:100%;flex-direction:row;overflow-x:auto;padding:12px;}
     .brand{display:none;}
+    .langtoggle{margin:0 8px 0 0;width:120px;flex-shrink:0;}
     nav.primary{display:flex;padding:0;gap:4px;}
     .navdivider{display:none;}
     .navlabel{display:none;}
@@ -354,22 +431,26 @@
   <aside class="sidebar">
     <div class="brand">
       <div class="brand-mark">PRMS</div>
-      <div class="brand-sub">Portfolio &amp; Resource Management<br>General Department of AI</div>
+      <div class="brand-sub" data-en="Portfolio &amp; Resource Management<br>General Department of AI" data-ar="إدارة المحفظة والموارد<br>الإدارة العامة للذكاء الاصطناعي">Portfolio &amp; Resource Management<br>General Department of AI</div>
+    </div>
+    <div class="langtoggle">
+      <button id="langEnBtn" class="sel">EN</button>
+      <button id="langArBtn">عربي</button>
     </div>
     <nav class="primary" id="nav">
-      <button class="navitem active" data-view="inbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Inbox</button>
-      <button class="navitem" data-view="portfolio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="4" width="7" height="7"/><rect x="13" y="4" width="7" height="7"/><rect x="4" y="13" width="7" height="7"/><rect x="13" y="13" width="7" height="7"/></svg>Portfolio</button>
-      <button class="navitem" data-view="workspace"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M3 9h18"/></svg>Project Workspace</button>
-      <button class="navitem" data-view="plan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 18V6M4 6l6 5-6 5M12 18V6M12 6l6 5-6 5"/></svg>Plan Editor</button>
-      <button class="navitem" data-view="replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M10 9l5 3-5 3z"/></svg>Replay</button>
-      <button class="navitem" data-view="resources"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-5 6-5s6 1.7 6 5"/><circle cx="18" cy="9" r="2.2"/><path d="M15.5 14c2.6.2 4.5 1.8 4.5 4"/></svg>Resource Pool</button>
+      <button class="navitem active" data-view="inbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span data-en="Inbox" data-ar="صندوق الوارد">Inbox</span></button>
+      <button class="navitem" data-view="portfolio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="4" width="7" height="7"/><rect x="13" y="4" width="7" height="7"/><rect x="4" y="13" width="7" height="7"/><rect x="13" y="13" width="7" height="7"/></svg><span data-en="Portfolio" data-ar="محفظة المشاريع">Portfolio</span></button>
+      <button class="navitem" data-view="workspace"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M3 9h18"/></svg><span data-en="Project Workspace" data-ar="مساحة عمل المشروع">Project Workspace</span></button>
+      <button class="navitem" data-view="plan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 18V6M4 6l6 5-6 5M12 18V6M12 6l6 5-6 5"/></svg><span data-en="Plan Editor" data-ar="محرر الخطة">Plan Editor</span></button>
+      <button class="navitem" data-view="replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M10 9l5 3-5 3z"/></svg><span data-en="Replay" data-ar="إعادة العرض">Replay</span></button>
+      <button class="navitem" data-view="resources"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-5 6-5s6 1.7 6 5"/><circle cx="18" cy="9" r="2.2"/><path d="M15.5 14c2.6.2 4.5 1.8 4.5 4"/></svg><span data-en="Resource Pool" data-ar="مجمع الموارد">Resource Pool</span></button>
       <div class="navdivider"></div>
-      <div class="navlabel">External view</div>
-      <button class="navitem" data-view="stakeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="1"/><path d="M3 8h18"/><circle cx="7" cy="6.5" r=".4" fill="currentColor"/></svg>Stakeholder Portal</button>
+      <div class="navlabel" data-en="External view" data-ar="عرض خارجي">External view</div>
+      <button class="navitem" data-view="stakeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="1"/><path d="M3 8h18"/><circle cx="7" cy="6.5" r=".4" fill="currentColor"/></svg><span data-en="Stakeholder Portal" data-ar="بوابة الجهات المعنية">Stakeholder Portal</span></button>
     </nav>
     <div class="userchip">
       <div class="userchip-name">Sarah Al Mazrouei</div>
-      <div class="userchip-role">Lead TPM</div>
+      <div class="userchip-role" data-en="Lead TPM" data-ar="TPM رئيسي">Lead TPM</div>
     </div>
   </aside>
 
@@ -378,62 +459,52 @@
     <!-- ============ INBOX ============ -->
     <section class="view active" id="inbox">
       <header class="topbar">
-        <div><h1>Inbox</h1><div class="topbar-sub">Everything waiting on you. Nothing here you don't need to look at.</div></div>
+        <div><h1 data-en="Inbox" data-ar="صندوق الوارد">Inbox</h1><div class="topbar-sub" data-en="Every project, sorted by what needs you first. Quiet projects stay quiet." data-ar="كل مشروع، مرتَّب بحسب ما يحتاج انتباهك أولًا. المشاريع الهادئة تبقى هادئة.">Every project, sorted by what needs you first. Quiet projects stay quiet.</div></div>
       </header>
       <div class="content">
 
-        <div class="inboxgroup">
-          <h3>Awaiting your confirmation <span class="count">— 3</span></h3>
-          <div class="inboxrow">
-            <div class="lead">API integration sub-step reported done by Yousef Haddad<span class="proj">e-Crime Portal Enhancement · Development</span></div>
-            <div class="age">2 hours ago</div>
-            <button class="act">Confirm</button>
+        <div class="attnlist">
+          <div class="attnrow" data-goto="workspace">
+            <div class="aname" data-en="e-Crime Portal Enhancement" data-ar="تطوير بوابة الجرائم الإلكترونية">e-Crime Portal Enhancement</div>
+            <div class="abadges">
+              <span class="abadge confirm"><span class="adot"></span><span class="num">2</span> <span data-en="to confirm" data-ar="بانتظار تأكيدك">to confirm</span></span>
+              <span class="abadge cr"><span class="adot"></span><span class="num">1</span> <span data-en="CR decision" data-ar="قرار CR">CR decision</span></span>
+            </div>
+            <div class="aarrow">‹</div>
           </div>
-          <div class="inboxrow">
-            <div class="lead">Notification templates sub-step reported done by Lina Youssef<span class="proj">e-Crime Portal Enhancement · Development</span></div>
-            <div class="age">yesterday</div>
-            <button class="act">Confirm</button>
+          <div class="attnrow" data-goto="workspace">
+            <div class="aname" data-en="Custody Digital Intake" data-ar="الاستقبال الرقمي للتوقيف">Custody Digital Intake</div>
+            <div class="abadges">
+              <span class="abadge confirm"><span class="adot"></span><span class="num">1</span> <span data-en="to confirm" data-ar="بانتظار تأكيدك">to confirm</span></span>
+              <span class="abadge hold"><span class="adot"></span><span class="num">1</span> <span data-en="hold overdue" data-ar="Hold متأخِّرة">hold overdue</span></span>
+            </div>
+            <div class="aarrow">‹</div>
           </div>
-          <div class="inboxrow">
-            <div class="lead">Data migration script reported done by Khalid Bin Sultan<span class="proj">Custody Digital Intake · Development</span></div>
-            <div class="age">2 days ago</div>
-            <button class="act">Confirm</button>
-          </div>
-        </div>
-
-        <div class="inboxgroup">
-          <h3>Change requests with no decision recorded <span class="count">— 1</span></h3>
-          <div class="inboxrow">
-            <div class="lead">Arabic push notification templates — Developer, 3 man-days<span class="proj">e-Crime Portal Enhancement · presented 12 Sep</span></div>
-            <div class="age">1 day ago</div>
-            <button class="act">Record decision</button>
+          <div class="attnrow" data-goto="workspace">
+            <div class="aname" data-en="Forensics Chain-of-Custody Tracker" data-ar="متعقّب سلسلة حيازة الأدلة الجنائية">Forensics Chain-of-Custody Tracker</div>
+            <div class="abadges">
+              <span class="abadge stale"><span class="adot"></span><span data-en="stale" data-ar="راكدة">stale</span> · <span class="num">22</span> <span data-en="days" data-ar="يومًا">days</span></span>
+            </div>
+            <div class="aarrow">‹</div>
           </div>
         </div>
 
-        <div class="inboxgroup">
-          <h3>Holds past expected resume <span class="count">— 1</span></h3>
-          <div class="inboxrow">
-            <div class="lead">Custody Digital Intake — expected resume was 8 Sep<span class="proj">Held for: Anti-Fraud Intake resourcing</span></div>
-            <div class="age">5 days overdue</div>
-            <button class="act">Review</button>
-          </div>
+        <div class="cleanline" id="cleanline">
+          <span><span class="num">3</span> <span data-en="other projects — all clear" data-ar="مشاريع أخرى — لا شيء بانتظارك">other projects — all clear</span></span>
+          <span class="cleantoggle" data-en="show" data-ar="عرض">show</span>
+        </div>
+        <div class="cleanlist" id="cleanlist">
+          <span data-en="Anti-Fraud Intake" data-ar="استقبال مكافحة الاحتيال">Anti-Fraud Intake</span> ·
+          <span data-en="Patrol Resource Optimizer" data-ar="مُحسِّن موارد الدوريات">Patrol Resource Optimizer</span> ·
+          <span data-en="Narcotics Case Linkage" data-ar="ربط قضايا المخدرات">Narcotics Case Linkage</span>
         </div>
 
-        <div class="inboxgroup">
-          <h3>Stale 14+ days <span class="count">— 1</span></h3>
+        <div class="inboxgroup" style="margin-top:26px">
+          <h3><span data-en="Not tied to one project" data-ar="غير مرتبط بمشروع واحد">Not tied to one project</span> <span class="count">— 1</span></h3>
           <div class="inboxrow">
-            <div class="lead">Forensics Chain-of-Custody Tracker — no plan activity since 22 Aug<span class="proj">Draft · Requirements</span></div>
-            <div class="age">22 days</div>
-            <button class="act">Open</button>
-          </div>
-        </div>
-
-        <div class="inboxgroup">
-          <h3>Saved scenarios not resolved <span class="count">— 1</span></h3>
-          <div class="inboxrow">
-            <div class="lead">"Pull 2 developers for Q4 security audit" — forked from live portfolio<span class="proj">Saved 3 days ago, not committed or discarded</span></div>
-            <div class="age">3 days ago</div>
-            <button class="act">Open in Scenario Studio</button>
+            <div class="lead"><span data-en="&quot;Pull 2 developers for Q4 security audit&quot; — forked from live portfolio" data-ar="«سحب Developer اثنين لتدقيق أمني في الربع الرابع» — Scenario منفصلة عن المحفظة الحالية">"Pull 2 developers for Q4 security audit" — forked from live portfolio</span><span class="proj" data-en="Saved 3 days ago, not committed or discarded" data-ar="محفوظة منذ 3 أيام، لم يتم Commit أو إلغاؤها">Saved 3 days ago, not committed or discarded</span></div>
+            <div class="age" data-en="3 days ago" data-ar="منذ 3 أيام">3 days ago</div>
+            <button class="act" data-en="Open in Scenario Studio" data-ar="فتح في Scenario Studio">Open in Scenario Studio</button>
           </div>
         </div>
 
@@ -443,43 +514,51 @@
     <!-- ============ PORTFOLIO ============ -->
     <section class="view" id="portfolio">
       <header class="topbar">
-        <div><h1>Portfolio</h1><div class="topbar-sub">Every project the department is delivering, one record each.</div></div>
-        <button class="btn brass">New project</button>
+        <div><h1 data-en="Portfolio" data-ar="محفظة المشاريع">Portfolio</h1><div class="topbar-sub" data-en="Every project the department is delivering, one record each." data-ar="كل مشروع تنفّذه الإدارة، بسجل واحد له.">Every project the department is delivering, one record each.</div></div>
+        <button class="btn brass" data-en="New project" data-ar="مشروع جديد">New project</button>
       </header>
       <div class="content">
 
-        <div class="rowcaption">This department</div>
+        <div class="rowcaption" data-en="This department" data-ar="هذه الإدارة">This department</div>
         <div class="statsrow">
-          <div class="stat"><div class="stat-value num">6</div><div class="stat-label">Active or drafted</div></div>
-          <div class="stat"><div class="stat-value num">1</div><div class="stat-label">Stale 14+ days</div></div>
-          <div class="stat"><div class="stat-value num">1</div><div class="stat-label">Over-allocated resource</div></div>
-          <div class="stat"><div class="stat-value num">+9d</div><div class="stat-label">Average variance</div></div>
+          <div class="stat"><div class="stat-value num">6</div><div class="stat-label" data-en="Active or drafted" data-ar="نشطة أو Draft">Active or drafted</div></div>
+          <div class="stat"><div class="stat-value num">1</div><div class="stat-label" data-en="Stale 14+ days" data-ar="راكدة لأكثر من 14 يومًا">Stale 14+ days</div></div>
+          <div class="stat"><div class="stat-value num">1</div><div class="stat-label" data-en="Over-allocated resource" data-ar="مورد مُحمَّل بأكثر من طاقته">Over-allocated resource</div></div>
+          <div class="stat"><div class="stat-value num">+9d</div><div class="stat-label" data-en="Average variance" data-ar="متوسط Variance">Average variance</div></div>
         </div>
-        <div class="rowcaption">What's driving that — same weight, same page</div>
+        <div class="rowcaption" data-en="What's driving that — same weight, same page" data-ar="ما يقف وراء ذلك — بنفس الأهمية وفي نفس الصفحة">What's driving that — same weight, same page</div>
         <div class="statsrow external">
-          <div class="stat"><div class="stat-value num">41d</div><div class="stat-label">Added by approved change requests</div></div>
-          <div class="stat"><div class="stat-value num">62d</div><div class="stat-label">Lost to reprioritisation</div></div>
-          <div class="stat"><div class="stat-value num">3</div><div class="stat-label">Change requests pending decision</div></div>
-          <div class="stat"><div class="stat-value" style="font-size:1.1rem">CID</div><div class="stat-label">Top requesting department</div></div>
+          <div class="stat"><div class="stat-value num">41d</div><div class="stat-label" data-en="Added by approved change requests" data-ar="أضافتها Change Requests المعتمدة">Added by approved change requests</div></div>
+          <div class="stat"><div class="stat-value num">62d</div><div class="stat-label" data-en="Lost to reprioritisation" data-ar="ضائعة بسبب إعادة ترتيب الأولويات">Lost to reprioritisation</div></div>
+          <div class="stat"><div class="stat-value num">3</div><div class="stat-label" data-en="Change requests pending decision" data-ar="Change Requests في انتظار القرار">Change requests pending decision</div></div>
+          <div class="stat"><div class="stat-value" style="font-size:1.1rem">CID</div><div class="stat-label" data-en="Top requesting department" data-ar="الإدارة الأكثر طلبًا">Top requesting department</div></div>
         </div>
 
         <div class="toolbar">
           <div class="filterchips">
-            <span class="filterchip sel">All</span>
-            <span class="filterchip">Active</span>
-            <span class="filterchip">On Hold</span>
-            <span class="filterchip">Draft</span>
-            <span class="filterchip">Launched</span>
+            <span class="filterchip sel" data-en="All" data-ar="الكل">All</span>
+            <span class="filterchip" data-en="Active" data-ar="Active">Active</span>
+            <span class="filterchip" data-en="On Hold" data-ar="Hold">On Hold</span>
+            <span class="filterchip" data-en="Draft" data-ar="Draft">Draft</span>
+            <span class="filterchip" data-en="Launched" data-ar="Launched">Launched</span>
           </div>
-          <div class="toggle">My projects<button class="switch" id="myprojtoggle"></button></div>
+          <div class="toggle"><span data-en="My projects" data-ar="مشاريعي">My projects</span><button class="switch" id="myprojtoggle"></button></div>
         </div>
 
         <table class="portfolio">
-          <thead><tr><th>Project</th><th>Status</th><th>Days left</th><th>Variance</th><th>Health</th><th>Team</th><th>Lead</th></tr></thead>
+          <thead><tr>
+            <th data-en="Project" data-ar="المشروع">Project</th>
+            <th data-en="Status" data-ar="Status">Status</th>
+            <th data-en="Days left" data-ar="الأيام المتبقية">Days left</th>
+            <th data-en="Variance" data-ar="Variance">Variance</th>
+            <th data-en="Health" data-ar="Health">Health</th>
+            <th data-en="Team" data-ar="الفريق">Team</th>
+            <th data-en="Lead" data-ar="Lead">Lead</th>
+          </tr></thead>
           <tbody id="portfoliobody">
             <tr data-lead="Sarah Al Mazrouei">
-              <td><div class="projname">e-Crime Portal Enhancement<span class="stale" style="display:none"></span></div><div class="projdept">CID → e-Crime Unit</div></td>
-              <td><span class="chip on">Active · Development</span></td>
+              <td><div class="projname"><span data-en="e-Crime Portal Enhancement" data-ar="تطوير بوابة الجرائم الإلكترونية">e-Crime Portal Enhancement</span><span class="stale" style="display:none"></span></div><div class="projdept" data-en="CID → e-Crime Unit" data-ar="الإدارة العامة للتحريات والبحث الجنائي ← إدارة الجرائم الإلكترونية">CID → e-Crime Unit</div></td>
+              <td><span class="chip on"><span data-en="Active · Development" data-ar="Active · Development">Active · Development</span></span></td>
               <td class="num">4d</td>
               <td><span class="variance up num">+12d</span></td>
               <td><span class="dot attn"></span></td>
@@ -487,8 +566,8 @@
               <td>Sarah Al Mazrouei</td>
             </tr>
             <tr data-lead="Omar Al Falasi">
-              <td><div class="projname">Anti-Fraud Intake</div><div class="projdept">HQ directive</div></td>
-              <td><span class="chip on">Active · Requirements</span></td>
+              <td><div class="projname" data-en="Anti-Fraud Intake" data-ar="استقبال مكافحة الاحتيال">Anti-Fraud Intake</div><div class="projdept" data-en="HQ directive" data-ar="توجيه من القيادة العامة">HQ directive</div></td>
+              <td><span class="chip on"><span data-en="Active · Requirements" data-ar="Active · المتطلبات">Active · Requirements</span></span></td>
               <td class="num">9d</td>
               <td><span class="variance up num">+5d</span></td>
               <td><span class="dot good"></span></td>
@@ -496,8 +575,8 @@
               <td>Omar Al Falasi</td>
             </tr>
             <tr data-lead="Sarah Al Mazrouei">
-              <td><div class="projname">Custody Digital Intake</div><div class="projdept">Prisons</div></td>
-              <td><span class="chip hold">On Hold · Development</span></td>
+              <td><div class="projname" data-en="Custody Digital Intake" data-ar="الاستقبال الرقمي للتوقيف">Custody Digital Intake</div><div class="projdept" data-en="Prisons" data-ar="الإدارة العامة للمؤسسات العقابية">Prisons</div></td>
+              <td><span class="chip hold"><span data-en="On Hold · Development" data-ar="Hold · Development">On Hold · Development</span></span></td>
               <td class="num">—</td>
               <td><span class="variance up num">+18d</span></td>
               <td><span class="dot attn"></span></td>
@@ -505,28 +584,28 @@
               <td>Sarah Al Mazrouei</td>
             </tr>
             <tr data-lead="Mona Al Suwaidi">
-              <td><div class="projname">Forensics Chain-of-Custody Tracker<span class="stale">stale</span></div><div class="projdept">Forensics</div></td>
-              <td><span class="chip draft">Draft · Requirements</span></td>
+              <td><div class="projname"><span data-en="Forensics Chain-of-Custody Tracker" data-ar="متعقّب سلسلة حيازة الأدلة الجنائية">Forensics Chain-of-Custody Tracker</span><span class="stale" data-en="stale" data-ar="راكدة">stale</span></div><div class="projdept" data-en="Forensics" data-ar="الإدارة العامة للأدلة الجنائية">Forensics</div></td>
+              <td><span class="chip draft"><span data-en="Draft · Requirements" data-ar="Draft · المتطلبات">Draft · Requirements</span></span></td>
               <td class="num">—</td>
-              <td><span class="variance flat">not baselined</span></td>
+              <td><span class="variance flat" data-en="not baselined" data-ar="لم يُحدَّد Baseline">not baselined</span></td>
               <td><span class="dot none"></span></td>
               <td class="num">2</td>
               <td>Mona Al Suwaidi</td>
             </tr>
             <tr data-lead="Omar Al Falasi">
-              <td><div class="projname">Patrol Resource Optimizer</div><div class="projdept">Police Stations</div></td>
-              <td><span class="chip on">Active · UAT</span></td>
+              <td><div class="projname" data-en="Patrol Resource Optimizer" data-ar="مُحسِّن موارد الدوريات">Patrol Resource Optimizer</div><div class="projdept" data-en="Police Stations" data-ar="الإدارة العامة لمراكز الشرطة">Police Stations</div></td>
+              <td><span class="chip on"><span data-en="Active · UAT" data-ar="Active · UAT">Active · UAT</span></span></td>
               <td class="num">2d</td>
-              <td><span class="variance flat">on baseline</span></td>
+              <td><span class="variance flat" data-en="on baseline" data-ar="ضمن Baseline">on baseline</span></td>
               <td><span class="dot good"></span></td>
               <td class="num">3</td>
               <td>Omar Al Falasi</td>
             </tr>
             <tr data-lead="Mona Al Suwaidi">
-              <td><div class="projname">Narcotics Case Linkage</div><div class="projdept">Anti-Narcotics</div></td>
-              <td><span class="chip launched">Launched</span></td>
+              <td><div class="projname" data-en="Narcotics Case Linkage" data-ar="ربط قضايا المخدرات">Narcotics Case Linkage</div><div class="projdept" data-en="Anti-Narcotics" data-ar="الإدارة العامة لمكافحة المخدرات">Anti-Narcotics</div></td>
+              <td><span class="chip launched" data-en="Launched" data-ar="Launched">Launched</span></td>
               <td class="num">—</td>
-              <td><span class="variance up num">+3d final</span></td>
+              <td><span class="variance up num" data-en="+3d final" data-ar="+3 أيام نهائيًا">+3d final</span></td>
               <td><span class="dot none"></span></td>
               <td class="num">4</td>
               <td>Mona Al Suwaidi</td>
@@ -539,44 +618,44 @@
     <!-- ============ PROJECT WORKSPACE ============ -->
     <section class="view" id="workspace">
       <header class="topbar">
-        <div><h1>Project Workspace</h1><div class="topbar-sub">One record, rendered as nine cards. No page keeps its own version of the facts.</div></div>
+        <div><h1 data-en="Project Workspace" data-ar="مساحة عمل المشروع">Project Workspace</h1><div class="topbar-sub" data-en="One record, rendered as nine cards. No page keeps its own version of the facts." data-ar="سجل واحد، معروض في تسع بطاقات. لا صفحة تحتفظ بنسختها الخاصة من الحقائق.">One record, rendered as nine cards. No page keeps its own version of the facts.</div></div>
       </header>
       <div class="content">
 
         <div class="wsheader">
           <div>
-            <h2>e-Crime Portal Enhancement <span class="stamp">PRJ-2026-014</span></h2>
+            <h2><span data-en="e-Crime Portal Enhancement" data-ar="تطوير بوابة الجرائم الإلكترونية">e-Crime Portal Enhancement</span> <span class="stamp">PRJ-2026-014</span></h2>
             <div class="wsmeta">
-              <span class="chip on">Active · Development — 4 days left</span>
-              <span class="sep">·</span> Priority: High
-              <span class="sep">·</span> CID → e-Crime Unit
-              <span class="sep">·</span> Business PM: Khalid Al Shamsi
-              <span class="sep">·</span> Lead: Sarah Al Mazrouei + 1 junior
+              <span class="chip on"><span data-en="Active · Development — 4 days left" data-ar="Active · Development — 4 أيام متبقية">Active · Development — 4 days left</span></span>
+              <span class="sep">·</span> <span data-en="Priority: High" data-ar="الأولوية: عالية">Priority: High</span>
+              <span class="sep">·</span> <span data-en="CID → e-Crime Unit" data-ar="الإدارة العامة للتحريات والبحث الجنائي ← إدارة الجرائم الإلكترونية">CID → e-Crime Unit</span>
+              <span class="sep">·</span> <span data-en="Business PM: Khalid Al Shamsi" data-ar="مدير المشروع من جهة الأعمال: خالد الشامسي">Business PM: Khalid Al Shamsi</span>
+              <span class="sep">·</span> <span data-en="Lead: Sarah Al Mazrouei + 1 junior" data-ar="Lead: سارة المزروعي + Junior TPM واحد">Lead: Sarah Al Mazrouei + 1 junior</span>
             </div>
           </div>
-          <button class="btn secondary">Baseline this plan</button>
+          <button class="btn secondary" data-en="Baseline this plan" data-ar="تحديد Baseline لهذه الخطة">Baseline this plan</button>
         </div>
 
         <div class="cardgrid">
           <div class="card half">
-            <h4>Stats</h4>
+            <h4 data-en="Stats" data-ar="الأرقام">Stats</h4>
             <div class="statgrid">
-              <div><div class="bignum">12 Dec</div><div class="bignum-label">Current delivery date</div></div>
-              <div><div class="bignum" style="color:var(--brass)">+12d</div><div class="bignum-label">vs baseline (30 Nov)</div></div>
+              <div><div class="bignum num">12 Dec</div><div class="bignum-label" data-en="Current delivery date" data-ar="تاريخ التسليم الحالي">Current delivery date</div></div>
+              <div><div class="bignum num" style="color:var(--brass)">+12d</div><div class="bignum-label" data-en="vs baseline (30 Nov)" data-ar="مقارنة بـ Baseline (30 نوفمبر)">vs baseline (30 Nov)</div></div>
             </div>
             <div class="progresspair">
-              <div class="pp-item"><div style="font-size:0.78rem;color:var(--ink-soft)">Planned 60%</div><div class="pp-bar"><div class="pp-fill" style="width:60%"></div></div></div>
-              <div class="pp-item"><div style="font-size:0.78rem;color:var(--ink-soft)">Verified 40%</div><div class="pp-bar"><div class="pp-fill verified" style="width:40%"></div></div></div>
+              <div class="pp-item"><div style="font-size:0.78rem;color:var(--ink-soft)"><span data-en="Planned" data-ar="المخطط">Planned</span> 60%</div><div class="pp-bar"><div class="pp-fill" style="width:60%"></div></div></div>
+              <div class="pp-item"><div style="font-size:0.78rem;color:var(--ink-soft)"><span data-en="Verified" data-ar="المؤكَّد">Verified</span> 40%</div><div class="pp-bar"><div class="pp-fill verified" style="width:40%"></div></div></div>
             </div>
           </div>
 
           <div class="card wide" style="border-left-color:var(--rule-strong)">
-            <h4>Status note</h4>
-            <p class="statusnote">Development is on track for the resized scope. SMS notifications (approved 8 Sep) pushed delivery from 30 Nov to 12 Dec. Security testing slot confirmed for 16 Dec. One change request awaiting your decision.</p>
+            <h4 data-en="Status note" data-ar="ملاحظة الحالة">Status note</h4>
+            <p class="statusnote" data-en="Development is on track for the resized scope. SMS notifications (approved 8 Sep) pushed delivery from 30 Nov to 12 Dec. Security testing slot confirmed for 16 Dec. One change request awaiting your decision." data-ar="التطوير يسير كما هو مخطط له بعد تعديل النطاق. إشعارات SMS (المعتمدة في 8 سبتمبر) أخّرت التسليم من 30 نوفمبر إلى 12 ديسمبر. موعد اختبار الأمن مؤكَّد في 16 ديسمبر. طلب Change Request واحد في انتظار قرارك.">Development is on track for the resized scope. SMS notifications (approved 8 Sep) pushed delivery from 30 Nov to 12 Dec. Security testing slot confirmed for 16 Dec. One change request awaiting your decision.</p>
           </div>
 
           <div class="card card--plan half">
-            <h4>Plan</h4>
+            <h4 data-en="Plan" data-ar="الخطة">Plan</h4>
             <div class="miniplan">
               <span style="width:15%;background:var(--ink-faint)"></span>
               <span style="width:15%;background:var(--ink-faint)"></span>
@@ -586,45 +665,45 @@
               <span style="width:10%;background:var(--violet)"></span>
               <span style="width:8%;background:var(--violet)"></span>
             </div>
-            <p style="font-size:0.8rem;color:var(--ink-soft);margin:0 0 10px">Baselined 14 Aug 2026. Editing opens a new scenario.</p>
-            <button class="btn secondary" style="width:100%">Edit plan</button>
+            <p style="font-size:0.8rem;color:var(--ink-soft);margin:0 0 10px" data-en="Baselined 14 Aug 2026. Editing opens a new scenario." data-ar="تم تحديد Baseline في 14 أغسطس 2026. التعديل يفتح Scenario جديدة.">Baselined 14 Aug 2026. Editing opens a new scenario.</p>
+            <button class="btn secondary" style="width:100%" data-en="Edit plan" data-ar="تعديل الخطة">Edit plan</button>
           </div>
 
           <div class="card card--team half">
-            <h4>Team &amp; resources</h4>
-            <div class="personrow"><span>Yousef Haddad · Developer</span><span class="alloc">100%</span></div>
-            <div class="personrow"><span>Lina Youssef · Developer</span><span class="alloc">100%</span></div>
-            <div class="personrow"><span>Ahmed Al Najjar · Tech Lead</span><span class="alloc">50%</span></div>
-            <div class="personrow"><span>Fatima Al Zaabi · Junior TPM</span><span class="alloc">—</span></div>
+            <div class="cardhead"><h4 data-en="Team &amp; resources" data-ar="الفريق والموارد">Team &amp; resources</h4><span class="abadge confirm"><span class="adot"></span><span class="num">2</span> <span data-en="to confirm" data-ar="بانتظار تأكيدك">to confirm</span></span></div>
+            <div class="personrow"><span>Yousef Haddad · <span data-en="Developer" data-ar="Developer">Developer</span></span><span class="rowflag confirm" data-en="sub-step pending" data-ar="خطوة فرعية بانتظار التأكيد">sub-step pending</span></div>
+            <div class="personrow"><span>Lina Youssef · <span data-en="Developer" data-ar="Developer">Developer</span></span><span class="rowflag confirm" data-en="sub-step pending" data-ar="خطوة فرعية بانتظار التأكيد">sub-step pending</span></div>
+            <div class="personrow"><span>Ahmed Al Najjar · <span data-en="Tech Lead" data-ar="Tech Lead">Tech Lead</span></span><span class="alloc">50%</span></div>
+            <div class="personrow"><span>Fatima Al Zaabi · <span data-en="Junior TPM" data-ar="Junior TPM">Junior TPM</span></span><span class="alloc">—</span></div>
           </div>
 
           <div class="card card--cr half">
-            <h4>Change requests</h4>
-            <div class="crrow"><div class="top"><span>SMS notifications</span><span class="chip on" style="font-size:.7rem">Approved</span></div><div class="sub">Developer, 5 man-days · +5d written 8 Sep</div></div>
-            <div class="crrow"><div class="top"><span>Arabic push templates</span><span class="chip draft" style="font-size:.7rem">Presented</span></div><div class="sub">Developer, 3 man-days · previewed +3d, awaiting decision</div></div>
+            <div class="cardhead"><h4 data-en="Change requests" data-ar="Change Requests">Change requests</h4><span class="abadge cr"><span class="adot"></span><span class="num">1</span> <span data-en="needs decision" data-ar="بانتظار القرار">needs decision</span></span></div>
+            <div class="crrow"><div class="top"><span data-en="SMS notifications" data-ar="إشعارات SMS">SMS notifications</span><span class="chip on" style="font-size:.7rem" data-en="Approved" data-ar="معتمد">Approved</span></div><div class="sub" data-en="Developer, 5 man-days · +5d written 8 Sep" data-ar="Developer، 5 أيام عمل · +5 أيام بتاريخ 8 سبتمبر">Developer, 5 man-days · +5d written 8 Sep</div></div>
+            <div class="crrow"><div class="top"><span data-en="Arabic push templates" data-ar="قوالب إشعارات بالعربية">Arabic push templates</span><span class="chip draft" style="font-size:.7rem" data-en="Presented" data-ar="معروض">Presented</span></div><div class="sub" data-en="Developer, 3 man-days · previewed +3d, awaiting decision" data-ar="Developer، 3 أيام عمل · المعاينة +3 أيام، بانتظار القرار">Developer, 3 man-days · previewed +3d, awaiting decision</div></div>
           </div>
 
           <div class="card card--hold half">
-            <h4>Holds</h4>
-            <div class="holdrow"><div class="top"><span>3–8 Sep</span><span>resumed</span></div><div class="sub">Resources pulled for Anti-Fraud Intake · HQ order · +5d</div></div>
-            <p style="font-size:0.78rem;color:var(--ink-faint);margin:8px 0 0">This project has not displaced any others.</p>
+            <h4 data-en="Holds" data-ar="Holds">Holds</h4>
+            <div class="holdrow"><div class="top"><span class="num">3–8 Sep</span><span data-en="resumed" data-ar="استُؤنف">resumed</span></div><div class="sub" data-en="Resources pulled for Anti-Fraud Intake · HQ order · +5d" data-ar="سُحبت الموارد لصالح استقبال مكافحة الاحتيال · بأمر من القيادة العامة · +5 أيام">Resources pulled for Anti-Fraud Intake · HQ order · +5d</div></div>
+            <p style="font-size:0.78rem;color:var(--ink-faint);margin:8px 0 0" data-en="This project has not displaced any others." data-ar="لم يتسبب هذا المشروع بتعليق أي مشروع آخر.">This project has not displaced any others.</p>
           </div>
 
           <div class="card card--evidence half">
-            <h4>Evidence</h4>
-            <div class="evidencerow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2h9l5 5v15H6z"/></svg>Requirements.pdf</div>
-            <div class="evidencerow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2h9l5 5v15H6z"/></svg>Analysis-scope.pdf</div>
-            <div class="evidencerow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2h9l5 5v15H6z"/></svg>Baseline-approval-memo.pdf</div>
-            <div class="evidencerow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2h9l5 5v15H6z"/></svg>CR-SMS-approval.eml</div>
+            <h4 data-en="Evidence" data-ar="الوثائق الثبوتية">Evidence</h4>
+            <div class="evidencerow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2h9l5 5v15H6z"/></svg><span class="num">Requirements.pdf</span></div>
+            <div class="evidencerow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2h9l5 5v15H6z"/></svg><span class="num">Analysis-scope.pdf</span></div>
+            <div class="evidencerow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2h9l5 5v15H6z"/></svg><span class="num">Baseline-approval-memo.pdf</span></div>
+            <div class="evidencerow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2h9l5 5v15H6z"/></svg><span class="num">CR-SMS-approval.eml</span></div>
           </div>
 
           <div class="card card--history wide">
-            <h4>History — the full ledger, newest first</h4>
-            <div class="ledgerrow"><span class="date">12 Sep</span><span>cr_presented — Arabic push templates shown to business owner</span><span class="impact zero">preview</span></div>
-            <div class="ledgerrow"><span class="date">8 Sep</span><span>cr_approved — SMS notifications, proof: CR-SMS-approval.eml</span><span class="impact up">+5d</span></div>
-            <div class="ledgerrow"><span class="date">8 Sep</span><span>hold_resumed — team returned from Anti-Fraud Intake</span><span class="impact up">+5d</span></div>
-            <div class="ledgerrow"><span class="date">3 Sep</span><span>hold_started — resources pulled for Anti-Fraud Intake, HQ order</span><span class="impact zero">pending</span></div>
-            <div class="ledgerrow"><span class="date">14 Aug</span><span>baseline_set — approved by Khalid Al Shamsi, Baseline-approval-memo.pdf</span><span class="impact zero">30 Nov</span></div>
+            <h4 data-en="History — the full ledger, newest first" data-ar="السجل — كامل الأحداث، الأحدث أولًا">History — the full ledger, newest first</h4>
+            <div class="ledgerrow"><span class="date num">12 Sep</span><span data-en="cr_presented — Arabic push templates shown to business owner" data-ar="cr_presented — عُرضت قوالب الإشعارات بالعربية على صاحب الأعمال">cr_presented — Arabic push templates shown to business owner</span><span class="impact zero" data-en="preview" data-ar="معاينة">preview</span></div>
+            <div class="ledgerrow"><span class="date num">8 Sep</span><span data-en="cr_approved — SMS notifications, proof: CR-SMS-approval.eml" data-ar="cr_approved — إشعارات SMS، الإثبات: CR-SMS-approval.eml">cr_approved — SMS notifications, proof: CR-SMS-approval.eml</span><span class="impact up">+5d</span></div>
+            <div class="ledgerrow"><span class="date num">8 Sep</span><span data-en="hold_resumed — team returned from Anti-Fraud Intake" data-ar="hold_resumed — عاد الفريق من استقبال مكافحة الاحتيال">hold_resumed — team returned from Anti-Fraud Intake</span><span class="impact up">+5d</span></div>
+            <div class="ledgerrow"><span class="date num">3 Sep</span><span data-en="hold_started — resources pulled for Anti-Fraud Intake, HQ order" data-ar="hold_started — سُحبت الموارد لصالح استقبال مكافحة الاحتيال، بأمر من القيادة العامة">hold_started — resources pulled for Anti-Fraud Intake, HQ order</span><span class="impact zero" data-en="pending" data-ar="معلَّق">pending</span></div>
+            <div class="ledgerrow"><span class="date num">14 Aug</span><span data-en="baseline_set — approved by Khalid Al Shamsi, Baseline-approval-memo.pdf" data-ar="baseline_set — اعتمدها خالد الشامسي، Baseline-approval-memo.pdf">baseline_set — approved by Khalid Al Shamsi, Baseline-approval-memo.pdf</span><span class="impact zero num">30 Nov</span></div>
           </div>
         </div>
       </div>
@@ -633,56 +712,56 @@
     <!-- ============ PLAN EDITOR ============ -->
     <section class="view" id="plan">
       <header class="topbar">
-        <div><h1>Plan Editor</h1><div class="topbar-sub">Always a Draft or a Scenario. Never the record.</div></div>
+        <div><h1 data-en="Plan Editor" data-ar="محرر الخطة">Plan Editor</h1><div class="topbar-sub" data-en="Always a Draft or a Scenario. Never the record." data-ar="دائمًا Draft أو Scenario. أبدًا السجل الرسمي.">Always a Draft or a Scenario. Never the record.</div></div>
       </header>
       <div class="content">
 
         <div class="peheader">
-          <div class="title">Scenario: <span class="scenario">untitled</span> — forked from e-Crime Portal Enhancement</div>
+          <div class="title"><span data-en="Scenario:" data-ar="Scenario:">Scenario:</span> <span class="scenario" data-en="untitled" data-ar="بلا اسم">untitled</span> <span data-en="— forked from e-Crime Portal Enhancement" data-ar="— منفصلة عن تطوير بوابة الجرائم الإلكترونية">— forked from e-Crime Portal Enhancement</span></div>
           <div class="peactions">
-            <button class="btn secondary">Save scenario</button>
-            <button class="btn secondary">Discard</button>
-            <button class="btn brass" id="committrigger">Commit</button>
+            <button class="btn secondary" data-en="Save scenario" data-ar="حفظ Scenario">Save scenario</button>
+            <button class="btn secondary" data-en="Discard" data-ar="إلغاء">Discard</button>
+            <button class="btn brass" id="committrigger" data-en="Commit" data-ar="Commit">Commit</button>
           </div>
         </div>
 
-        <div class="rulerwrap">
+        <div class="rulerwrap ltr-island">
           <div class="ruler">
             <div></div>
-            <div class="rcell">1 Nov</div><div class="rcell"></div><div class="rcell"></div><div class="rcell"></div><div class="rcell">5</div><div class="rcell"></div><div class="rcell"></div>
+            <div class="rcell num">1 Nov</div><div class="rcell"></div><div class="rcell"></div><div class="rcell"></div><div class="rcell num">5</div><div class="rcell"></div><div class="rcell"></div>
             <div class="rcell"></div><div class="rcell"></div><div class="rcell">10</div><div class="rcell"></div><div class="rcell"></div><div class="rcell"></div><div class="rcell"></div>
             <div class="rcell">15</div><div class="rcell"></div><div class="rcell"></div><div class="rcell"></div><div class="rcell"></div><div class="rcell">20</div><div class="rcell"></div>
-            <div class="rcell"></div><div class="rcell"></div><div class="rcell"></div><div class="rcell">25</div><div class="rcell"></div><div class="rcell"></div><div class="rcell"></div><div class="rcell"></div><div class="rcell">Dec</div>
+            <div class="rcell"></div><div class="rcell"></div><div class="rcell"></div><div class="rcell num">25</div><div class="rcell"></div><div class="rcell"></div><div class="rcell"></div><div class="rcell"></div><div class="rcell num">Dec</div>
           </div>
 
-          <div class="blockrow"><div class="rlabel">Requirements</div><div class="blockbar done" style="grid-column:2/4">Requirements</div></div>
-          <div class="blockrow"><div class="rlabel">Analysis</div><div class="blockbar done" style="grid-column:4/6">Analysis</div></div>
+          <div class="blockrow"><div class="rlabel" data-en="Requirements" data-ar="المتطلبات">Requirements</div><div class="blockbar done" style="grid-column:2/4" data-en="Requirements" data-ar="المتطلبات">Requirements</div></div>
+          <div class="blockrow"><div class="rlabel" data-en="Analysis" data-ar="التحليل">Analysis</div><div class="blockbar done" style="grid-column:4/6" data-en="Analysis" data-ar="التحليل">Analysis</div></div>
           <div class="blockrow" style="position:relative">
-            <div class="rlabel">Development</div>
-            <div class="blockbar current resized" style="grid-column:6/16">Development · 22d (was 18)</div>
+            <div class="rlabel" data-en="Development" data-ar="التطوير">Development</div>
+            <div class="blockbar current resized" style="grid-column:6/16" data-en="Development · 25d (was 23)" data-ar="التطوير · 25 يومًا (كانت 23)">Development · 25d (was 23)</div>
             <div class="nowmarker" style="grid-column:10;margin-left:10px"></div>
-            <div class="nowlabel" style="grid-column:10;margin-left:10px">today</div>
+            <div class="nowlabel" style="grid-column:10;margin-left:10px" data-en="today" data-ar="اليوم">today</div>
           </div>
-          <div class="blockrow"><div class="rlabel">Testing</div><div class="blockbar upcoming" style="grid-column:16/19">Testing</div></div>
-          <div class="blockrow"><div class="rlabel">Security (external)</div><div class="blockbar external" style="grid-column:19/22">Security Dept · 5d lead</div></div>
-          <div class="blockrow"><div class="rlabel">UAT (external)</div><div class="blockbar external" style="grid-column:22/26">Business Owner · 7d lead</div></div>
-          <div class="blockrow"><div class="rlabel">Deployment (external)</div><div class="blockbar external" style="grid-column:26/29">DB Dept · 3d lead</div></div>
-          <div class="blockrow"><div class="rlabel">Trial</div><div class="blockbar upcoming" style="grid-column:29/31">Trial</div></div>
+          <div class="blockrow"><div class="rlabel" data-en="Testing" data-ar="الاختبار">Testing</div><div class="blockbar upcoming" style="grid-column:16/19" data-en="Testing" data-ar="الاختبار">Testing</div></div>
+          <div class="blockrow"><div class="rlabel" data-en="Security (external)" data-ar="الأمن (خارجي)">Security (external)</div><div class="blockbar external" style="grid-column:19/22" data-en="Security Dept · 5d lead" data-ar="إدارة الأمن · 5 أيام">Security Dept · 5d lead</div></div>
+          <div class="blockrow"><div class="rlabel" data-en="UAT (external)" data-ar="UAT (خارجي)">UAT (external)</div><div class="blockbar external" style="grid-column:22/26" data-en="Business Owner · 7d lead" data-ar="صاحب الأعمال · 7 أيام">Business Owner · 7d lead</div></div>
+          <div class="blockrow"><div class="rlabel" data-en="Deployment (external)" data-ar="النشر (خارجي)">Deployment (external)</div><div class="blockbar external" style="grid-column:26/29" data-en="DB Dept · 3d lead" data-ar="قواعد البيانات · 3 أيام">DB Dept · 3d lead</div></div>
+          <div class="blockrow"><div class="rlabel" data-en="Trial" data-ar="تجربة">Trial</div><div class="blockbar upcoming" style="grid-column:29/31" data-en="Trial" data-ar="تجربة">Trial</div></div>
 
           <div class="legend">
-            <span><i style="background:var(--ink-faint)"></i>Done</span>
-            <span><i style="background:var(--brass)"></i>Current, resized (override)</span>
-            <span><i style="background:var(--rule-strong)"></i>Upcoming</span>
-            <span><i style="background:var(--violet)"></i>Externally owned — lead time, not derived</span>
-            <span><i style="background:var(--rust)"></i>Today marker</span>
+            <span><i style="background:var(--ink-faint)"></i><span data-en="Done" data-ar="مكتمل">Done</span></span>
+            <span><i style="background:var(--brass)"></i><span data-en="Current, resized (override)" data-ar="حالي، بعد تعديل (Override)">Current, resized (override)</span></span>
+            <span><i style="background:var(--rule-strong)"></i><span data-en="Upcoming" data-ar="قادم">Upcoming</span></span>
+            <span><i style="background:var(--violet)"></i><span data-en="Externally owned — lead time, not derived" data-ar="بملكية خارجية — مدة تسليم يدوية، غير محسوبة">Externally owned — lead time, not derived</span></span>
+            <span><i style="background:var(--rust)"></i><span data-en="Today marker" data-ar="علامة اليوم">Today marker</span></span>
           </div>
 
           <div class="diffpanel" id="diffpanel">
-            <h4>Committing writes these events</h4>
+            <h4 data-en="Committing writes these events" data-ar="عند Commit سيتم كتابة هذه الأحداث">Committing writes these events</h4>
             <ul>
-              <li>+ CR "Arabic push templates" approved → +3 working days</li>
-              <li>Development resized 18 → 22 working days (override, justification: scope precision from analysis)</li>
-              <li>No new holds in this scenario</li>
+              <li data-en="+ CR &quot;Arabic push templates&quot; approved → +3 working days" data-ar="+ اعتماد CR «قوالب إشعارات بالعربية» ← +3 أيام عمل">+ CR "Arabic push templates" approved → +3 working days</li>
+              <li data-en="Development resized 23 → 25 working days (override, justification: scope precision from analysis)" data-ar="تعديل Development من 23 إلى 25 يوم عمل (Override، السبب: تحديد أدق للنطاق بعد التحليل)">Development resized 23 → 25 working days (override, justification: scope precision from analysis)</li>
+              <li data-en="No new holds in this scenario" data-ar="لا توجد Holds جديدة في هذه Scenario">No new holds in this scenario</li>
             </ul>
           </div>
         </div>
@@ -692,46 +771,46 @@
     <!-- ============ REPLAY ============ -->
     <section class="view" id="replay">
       <header class="topbar">
-        <div><h1>Replay</h1><div class="topbar-sub">e-Crime Portal Enhancement — the project, day by day.</div></div>
+        <div><h1 data-en="Replay" data-ar="إعادة العرض">Replay</h1><div class="topbar-sub" data-en="e-Crime Portal Enhancement — the project, day by day." data-ar="تطوير بوابة الجرائم الإلكترونية — المشروع، يومًا بيوم.">e-Crime Portal Enhancement — the project, day by day.</div></div>
         <div class="peactions">
-          <div class="toggle">Compare to baseline<button class="switch on" id="comparetoggle"></button></div>
-          <button class="btn brass" id="playbtn">▶ Play Highlights</button>
+          <div class="toggle"><span data-en="Compare to baseline" data-ar="مقارنة بـ Baseline">Compare to baseline</span><button class="switch on" id="comparetoggle"></button></div>
+          <button class="btn brass" id="playbtn" data-en="▶ Play Highlights" data-ar="▶ تشغيل أهم اللحظات">▶ Play Highlights</button>
         </div>
       </header>
       <div class="content">
         <div class="replayscreen">
 
           <div class="replaydatebox">
-            <div class="asof">As of <b id="asofdate">14 Aug 2026</b><span class="note" id="quietnote"></span></div>
-            <div class="projdate">Projected delivery, as it stood then<b id="projdate">30 Nov 2026</b></div>
+            <div class="asof"><span data-en="As of" data-ar="حتى تاريخ">As of</span> <b class="num" id="asofdate">14 Aug 2026</b><span class="note" id="quietnote"></span></div>
+            <div class="projdate"><span data-en="Projected delivery, as it stood then" data-ar="التسليم المتوقَّع، كما كان في ذلك الوقت">Projected delivery, as it stood then</span><b class="num" id="projdate">30 Nov 2026</b></div>
           </div>
 
           <div class="replaybarwrap">
-            <div class="eventflags" id="eventflags">
-              <div class="eventflag" data-day="0" style="left:0%" title="Baselined — 14 Aug"></div>
-              <div class="eventflag" data-day="20" style="left:25%" title="Hold started — 3 Sep"></div>
-              <div class="eventflag" data-day="25" style="left:31.25%" title="Hold resumed — 8 Sep"></div>
-              <div class="eventflag" data-day="26" style="left:32.5%" title="CR approved — 9 Sep"></div>
-              <div class="eventflag" data-day="27" style="left:33.75%" title="Development resized — 10 Sep"></div>
-              <div class="eventflag" data-day="29" style="left:36.25%" title="Today — 12 Sep"></div>
+            <div class="eventflags ltr-island" id="eventflags">
+              <div class="eventflag" data-day="0" style="left:0%" data-en-title="Baselined — 14 Aug" data-ar-title="تحديد Baseline — 14 أغسطس" title="Baselined — 14 Aug"></div>
+              <div class="eventflag" data-day="20" style="left:25%" data-en-title="Hold started — 3 Sep" data-ar-title="بدء Hold — 3 سبتمبر" title="Hold started — 3 Sep"></div>
+              <div class="eventflag" data-day="25" style="left:31.25%" data-en-title="Hold resumed — 8 Sep" data-ar-title="استئناف بعد Hold — 8 سبتمبر" title="Hold resumed — 8 Sep"></div>
+              <div class="eventflag" data-day="26" style="left:32.5%" data-en-title="CR approved — 9 Sep" data-ar-title="اعتماد CR — 9 سبتمبر" title="CR approved — 9 Sep"></div>
+              <div class="eventflag" data-day="27" style="left:33.75%" data-en-title="Development resized — 10 Sep" data-ar-title="تعديل Development — 10 سبتمبر" title="Development resized — 10 Sep"></div>
+              <div class="eventflag" data-day="29" style="left:36.25%" data-en-title="Today — 12 Sep" data-ar-title="اليوم — 12 سبتمبر" title="Today — 12 Sep"></div>
             </div>
-            <div class="replaytrack">
+            <div class="replaytrack ltr-island">
               <div class="ghostbar" id="ghostbar" style="width:72.5%"></div>
               <div class="segwrap" id="segwrap"></div>
               <div class="previewseg" id="previewseg"></div>
-              <div class="playhead" id="playhead" style="left:0%"></div>
+              <div class="playhead" id="playhead" style="left:0%" data-label="today"></div>
             </div>
-            <div class="tracklabels"><span>14 Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span></div>
+            <div class="tracklabels ltr-island"><span class="num">14 Aug</span><span class="num">Sep</span><span class="num">Oct</span><span class="num">Nov</span><span class="num">Dec</span></div>
 
             <input type="range" id="scrubrange" min="0" max="29" value="0" step="1" aria-label="Scrub day by day through project history">
 
             <div class="stopsrow">
-              <button class="stopbtn active" data-day="0">Baselined<span>14 Aug</span></button>
-              <button class="stopbtn" data-day="20">Hold started<span>3 Sep</span></button>
-              <button class="stopbtn" data-day="25">Hold resumed<span>8 Sep</span></button>
-              <button class="stopbtn" data-day="26">CR approved<span>9 Sep</span></button>
-              <button class="stopbtn" data-day="27">Development resized<span>10 Sep</span></button>
-              <button class="stopbtn" data-day="29">Today<span>12 Sep</span></button>
+              <button class="stopbtn active" data-day="0"><span data-en="Baselined" data-ar="تحديد Baseline">Baselined</span><span class="num">14 Aug</span></button>
+              <button class="stopbtn" data-day="20"><span data-en="Hold started" data-ar="بدء Hold">Hold started</span><span class="num">3 Sep</span></button>
+              <button class="stopbtn" data-day="25"><span data-en="Hold resumed" data-ar="استئناف بعد Hold">Hold resumed</span><span class="num">8 Sep</span></button>
+              <button class="stopbtn" data-day="26"><span data-en="CR approved" data-ar="اعتماد CR">CR approved</span><span class="num">9 Sep</span></button>
+              <button class="stopbtn" data-day="27"><span data-en="Development resized" data-ar="تعديل Development">Development resized</span><span class="num">10 Sep</span></button>
+              <button class="stopbtn" data-day="29"><span data-en="Today" data-ar="اليوم">Today</span><span class="num">12 Sep</span></button>
             </div>
 
             <div class="callout" id="callout">
@@ -741,19 +820,19 @@
             </div>
 
             <div class="phaselegend">
-              <span><i style="background:#8B968D"></i>Requirements</span>
-              <span><i style="background:#3F6E5E"></i>Analysis</span>
-              <span><i style="background:#9C6B2E"></i>Development</span>
-              <span><i style="background:#A97A0A"></i>Testing</span>
-              <span><i style="background:#6C5C86"></i>Security (external)</span>
-              <span><i style="background:#4A6B8A"></i>UAT (external)</span>
-              <span><i style="background:#6E8C5A"></i>Deployment (external)</span>
-              <span><i style="background:#8C7B66"></i>Trial</span>
+              <span><i style="background:#8B968D"></i><span data-en="Requirements" data-ar="المتطلبات">Requirements</span></span>
+              <span><i style="background:#3F6E5E"></i><span data-en="Analysis" data-ar="التحليل">Analysis</span></span>
+              <span><i style="background:#9C6B2E"></i><span data-en="Development" data-ar="التطوير">Development</span></span>
+              <span><i style="background:#A97A0A"></i><span data-en="Testing" data-ar="الاختبار">Testing</span></span>
+              <span><i style="background:#6C5C86"></i><span data-en="Security (external)" data-ar="الأمن (خارجي)">Security (external)</span></span>
+              <span><i style="background:#4A6B8A"></i><span data-en="UAT (external)" data-ar="UAT (خارجي)">UAT (external)</span></span>
+              <span><i style="background:#6E8C5A"></i><span data-en="Deployment (external)" data-ar="النشر (خارجي)">Deployment (external)</span></span>
+              <span><i style="background:#8C7B66"></i><span data-en="Trial" data-ar="تجربة">Trial</span></span>
             </div>
             <div class="replaylegend">
-              <span><i style="border:1.5px dashed var(--ink-faint);background:none"></i>Baseline extent (30 Nov)</span>
-              <span><i style="background:repeating-linear-gradient(45deg,var(--violet),var(--violet) 2px,transparent 2px,transparent 4px)"></i>Held — resources unavailable</span>
-              <span><i style="border:1.5px dashed var(--amber);background:var(--amber-soft)"></i>Pending CR, if approved</span>
+              <span><i style="border:1.5px dashed var(--ink-faint);background:none"></i><span data-en="Baseline extent (30 Nov)" data-ar="مدى Baseline (30 نوفمبر)">Baseline extent (30 Nov)</span></span>
+              <span><i style="background:repeating-linear-gradient(45deg,var(--violet),var(--violet) 2px,transparent 2px,transparent 4px)"></i><span data-en="Held — resources unavailable" data-ar="Hold — الموارد غير متاحة">Held — resources unavailable</span></span>
+              <span><i style="border:1.5px dashed var(--amber);background:var(--amber-soft)"></i><span data-en="Pending CR, if approved" data-ar="CR معلّق، في حال الاعتماد">Pending CR, if approved</span></span>
             </div>
           </div>
         </div>
@@ -763,46 +842,46 @@
     <!-- ============ RESOURCE POOL ============ -->
     <section class="view" id="resources">
       <header class="topbar">
-        <div><h1>Resource Pool &amp; Capacity</h1><div class="topbar-sub">People as rows. Assignments as bars. Nothing hidden.</div></div>
+        <div><h1 data-en="Resource Pool &amp; Capacity" data-ar="مجمع الموارد والطاقة الاستيعابية">Resource Pool &amp; Capacity</h1><div class="topbar-sub" data-en="People as rows. Assignments as bars. Nothing hidden." data-ar="الأشخاص كصفوف. التكليفات كأشرطة. لا شيء مخفي.">People as rows. Assignments as bars. Nothing hidden.</div></div>
       </header>
       <div class="content">
 
         <div class="capstrip">
-          <div class="capcell"><div class="role">Developers</div><div class="figs"><div class="fig"><b>4</b><span>headcount</span></div><div class="fig"><b>82%</b><span>utilised</span></div><div class="fig"><b>28 Sep</b><span>earliest free</span></div></div></div>
-          <div class="capcell"><div class="role">Tech Leads</div><div class="figs"><div class="fig"><b>2</b><span>headcount</span></div><div class="fig"><b>65%</b><span>utilised</span></div><div class="fig"><b>now</b><span>earliest free</span></div></div></div>
-          <div class="capcell"><div class="role">Business Analysts</div><div class="figs"><div class="fig"><b>2</b><span>headcount</span></div><div class="fig"><b>55%</b><span>utilised</span></div><div class="fig"><b>now</b><span>earliest free</span></div></div></div>
+          <div class="capcell"><div class="role" data-en="Developers" data-ar="Developers">Developers</div><div class="figs"><div class="fig"><b class="num">4</b><span data-en="headcount" data-ar="العدد">headcount</span></div><div class="fig"><b class="num">82%</b><span data-en="utilised" data-ar="نسبة الاستخدام">utilised</span></div><div class="fig"><b class="num">28 Sep</b><span data-en="earliest free" data-ar="أقرب موعد شاغر">earliest free</span></div></div></div>
+          <div class="capcell"><div class="role" data-en="Tech Leads" data-ar="Tech Leads">Tech Leads</div><div class="figs"><div class="fig"><b class="num">2</b><span data-en="headcount" data-ar="العدد">headcount</span></div><div class="fig"><b class="num">65%</b><span data-en="utilised" data-ar="نسبة الاستخدام">utilised</span></div><div class="fig"><b data-en="now" data-ar="الآن">now</b><span data-en="earliest free" data-ar="أقرب موعد شاغر">earliest free</span></div></div></div>
+          <div class="capcell"><div class="role" data-en="Business Analysts" data-ar="Business Analysts">Business Analysts</div><div class="figs"><div class="fig"><b class="num">2</b><span data-en="headcount" data-ar="العدد">headcount</span></div><div class="fig"><b class="num">55%</b><span data-en="utilised" data-ar="نسبة الاستخدام">utilised</span></div><div class="fig"><b data-en="now" data-ar="الآن">now</b><span data-en="earliest free" data-ar="أقرب موعد شاغر">earliest free</span></div></div></div>
         </div>
 
         <div class="roletabs">
-          <span class="filterchip sel" data-role="all">All roles</span>
-          <span class="filterchip" data-role="Developer">Developer</span>
-          <span class="filterchip" data-role="Tech Lead">Tech Lead</span>
-          <span class="filterchip" data-role="Business Analyst">Business Analyst</span>
+          <span class="filterchip sel" data-role="all" data-en="All roles" data-ar="جميع الأدوار">All roles</span>
+          <span class="filterchip" data-role="Developer" data-en="Developer" data-ar="Developer">Developer</span>
+          <span class="filterchip" data-role="Tech Lead" data-en="Tech Lead" data-ar="Tech Lead">Tech Lead</span>
+          <span class="filterchip" data-role="Business Analyst" data-en="Business Analyst" data-ar="Business Analyst">Business Analyst</span>
         </div>
 
-        <div class="swimlane" id="swimlane">
+        <div class="swimlane ltr-island" id="swimlane">
           <div class="swrow" data-role="Developer">
-            <div class="who"><b>Yousef Haddad</b><span>Developer</span></div>
-            <div class="swbar" style="grid-column:2/18">e-Crime Portal Enhancement</div>
+            <div class="who"><b>Yousef Haddad</b><span data-en="Developer" data-ar="Developer">Developer</span></div>
+            <div class="swbar" style="grid-column:2/18" data-en="e-Crime Portal Enhancement" data-ar="تطوير بوابة الجرائم الإلكترونية">e-Crime Portal Enhancement</div>
             <div class="swbar absence" style="grid-column:12/14"></div>
           </div>
           <div class="swrow" data-role="Developer">
-            <div class="who"><b>Lina Youssef</b><span>Developer</span></div>
-            <div class="swbar" style="grid-column:2/14">e-Crime Portal Enhancement</div>
-            <div class="swbar conflict" style="grid-column:14/17" title="Overlaps with Custody Digital Intake — 3 days"></div>
+            <div class="who"><b>Lina Youssef</b><span data-en="Developer" data-ar="Developer">Developer</span></div>
+            <div class="swbar" style="grid-column:2/14" data-en="e-Crime Portal Enhancement" data-ar="تطوير بوابة الجرائم الإلكترونية">e-Crime Portal Enhancement</div>
+            <div class="swbar conflict" style="grid-column:14/17" data-en-title="Overlaps with Custody Digital Intake — 3 days" data-ar-title="تتداخل مع الاستقبال الرقمي للتوقيف — 3 أيام" title="Overlaps with Custody Digital Intake — 3 days"></div>
           </div>
           <div class="swrow" data-role="Developer">
-            <div class="who"><b>Khalid Bin Sultan</b><span>Developer</span></div>
-            <div class="swbar free" style="grid-column:2/-1">Free — no current assignment</div>
+            <div class="who"><b>Khalid Bin Sultan</b><span data-en="Developer" data-ar="Developer">Developer</span></div>
+            <div class="swbar free" style="grid-column:2/-1" data-en="Free — no current assignment" data-ar="متاح — بلا تكليف حاليًا">Free — no current assignment</div>
           </div>
           <div class="swrow" data-role="Tech Lead">
-            <div class="who"><b>Ahmed Al Najjar</b><span>Tech Lead</span></div>
-            <div class="swbar b" style="grid-column:2/12">e-Crime (50%)</div>
-            <div class="swbar b" style="grid-column:13/22">Patrol Resource Optimizer (50%)</div>
+            <div class="who"><b>Ahmed Al Najjar</b><span data-en="Tech Lead" data-ar="Tech Lead">Tech Lead</span></div>
+            <div class="swbar b" style="grid-column:2/12" data-en="e-Crime (50%)" data-ar="e-Crime (50%)">e-Crime (50%)</div>
+            <div class="swbar b" style="grid-column:13/22" data-en="Patrol Resource Optimizer (50%)" data-ar="مُحسِّن موارد الدوريات (50%)">Patrol Resource Optimizer (50%)</div>
           </div>
           <div class="swrow" data-role="Business Analyst">
-            <div class="who"><b>Mona Al Ali</b><span>Business Analyst</span></div>
-            <div class="swbar" style="grid-column:2/16">Anti-Fraud Intake</div>
+            <div class="who"><b>Mona Al Ali</b><span data-en="Business Analyst" data-ar="Business Analyst">Business Analyst</span></div>
+            <div class="swbar" style="grid-column:2/16" data-en="Anti-Fraud Intake" data-ar="استقبال مكافحة الاحتيال">Anti-Fraud Intake</div>
           </div>
         </div>
       </div>
@@ -811,45 +890,45 @@
     <!-- ============ STAKEHOLDER PORTAL ============ -->
     <section class="view" id="stakeholder">
       <header class="topbar">
-        <div><h1>Stakeholder Portal</h1><div class="topbar-sub">What the business owner sees. Read-only. No login. Always current.</div></div>
+        <div><h1 data-en="Stakeholder Portal" data-ar="بوابة الجهات المعنية">Stakeholder Portal</h1><div class="topbar-sub" data-en="What the business owner sees. Read-only. No login. Always current." data-ar="ما يراه صاحب الأعمال. للعرض فقط. بلا تسجيل دخول. محدَّث دائمًا.">What the business owner sees. Read-only. No login. Always current.</div></div>
       </header>
       <div class="content">
         <div class="portalwrap">
-          <div class="securebanner"><span>Secure link · e-Crime Portal Enhancement</span><span>Last updated 12 Sep, 14:20</span></div>
+          <div class="securebanner"><span><span data-en="Secure link · e-Crime Portal Enhancement" data-ar="رابط آمن · تطوير بوابة الجرائم الإلكترونية">Secure link · e-Crime Portal Enhancement</span></span><span><span data-en="Last updated" data-ar="آخر تحديث">Last updated</span> <span class="num">12 Sep, 14:20</span></span></div>
 
-          <span class="chip on">Active · Development</span>
-          <p class="statusnote" style="margin-top:14px">Development is on track for the current scope. Two changes have moved the delivery date since the plan was approved — both explained below, with the approvals that authorised them.</p>
+          <span class="chip on"><span data-en="Active · Development" data-ar="Active · Development">Active · Development</span></span>
+          <p class="statusnote" style="margin-top:14px" data-en="Development is on track for the current scope. Two changes have moved the delivery date since the plan was approved — both explained below, with the approvals that authorised them." data-ar="التطوير يسير كما هو مخطط له وفق النطاق الحالي. طرأ تغييران أخّرا تاريخ التسليم منذ اعتماد الخطة — كلاهما موضَّح أدناه، مع الموافقات التي أذنت بهما.">Development is on track for the current scope. Two changes have moved the delivery date since the plan was approved — both explained below, with the approvals that authorised them.</p>
 
-          <div class="sectiontitle">Delivery date</div>
+          <div class="sectiontitle" data-en="Delivery date" data-ar="تاريخ التسليم">Delivery date</div>
           <div class="promiseblock">
-            <span class="from">30 Nov</span>
-            <span class="to">12 Dec</span>
-            <span class="delta">+12 working days</span>
+            <span class="from num">30 Nov</span>
+            <span class="to num">12 Dec</span>
+            <span class="delta"><span class="num">+12</span> <span data-en="working days" data-ar="يوم عمل">working days</span></span>
           </div>
-          <div class="explainline"><span>SMS notifications added to scope</span><span class="num">+5d</span></div>
-          <div class="explainline"><span>Team reassigned 3–8 Sep for an HQ-directed project</span><span class="num">+5d</span></div>
-          <div class="explainline"><span>Development duration refined after analysis</span><span class="num">+2d</span></div>
+          <div class="explainline"><span data-en="SMS notifications added to scope" data-ar="إضافة إشعارات SMS إلى النطاق">SMS notifications added to scope</span><span class="num">+5d</span></div>
+          <div class="explainline"><span data-en="Team reassigned 3–8 Sep for an HQ-directed project" data-ar="أُعيد توزيع الفريق من 3 إلى 8 سبتمبر لمشروع بتوجيه من القيادة العامة">Team reassigned 3–8 Sep for an HQ-directed project</span><span class="num">+5d</span></div>
+          <div class="explainline"><span data-en="Development duration refined after analysis" data-ar="تحديد أدق لمدة Development بعد التحليل">Development duration refined after analysis</span><span class="num">+2d</span></div>
 
           <div class="pendingcr">
-            <h4>Awaiting your decision</h4>
-            <p style="margin:0;font-size:0.85rem">Arabic push notification templates — Developer, 3 man-days. If approved: <b>+3 working days → 15 Dec.</b></p>
+            <h4 data-en="Awaiting your decision" data-ar="في انتظار قرارك">Awaiting your decision</h4>
+            <p style="margin:0;font-size:0.85rem" data-en="Arabic push notification templates — Developer, 3 man-days. If approved: +3 working days → 15 Dec." data-ar="قوالب إشعارات فورية بالعربية — Developer، 3 أيام عمل. في حال الاعتماد: +3 أيام عمل ← 15 ديسمبر.">Arabic push notification templates — Developer, 3 man-days. If approved: <b>+3 working days → 15 Dec.</b></p>
           </div>
 
-          <div class="sectiontitle">Replay</div>
+          <div class="sectiontitle" data-en="Replay" data-ar="إعادة العرض">Replay</div>
           <div class="replaywrap">
             <input type="range" min="0" max="4" value="4" id="replayrange">
             <div class="replaystops">
-              <div><div class="stopdot"></div><div class="stoplabel">Baselined 14 Aug</div></div>
-              <div><div class="stopdot"></div><div class="stoplabel">Hold started 3 Sep</div></div>
-              <div><div class="stopdot"></div><div class="stoplabel">Resumed 8 Sep</div></div>
-              <div><div class="stopdot"></div><div class="stoplabel">SMS approved 8 Sep</div></div>
-              <div><div class="stopdot"></div><div class="stoplabel">Today · 12 Sep</div></div>
+              <div><div class="stopdot"></div><div class="stoplabel"><span data-en="Baselined" data-ar="تحديد Baseline">Baselined</span> <span class="num">14 Aug</span></div></div>
+              <div><div class="stopdot"></div><div class="stoplabel"><span data-en="Hold started" data-ar="بدء Hold">Hold started</span> <span class="num">3 Sep</span></div></div>
+              <div><div class="stopdot"></div><div class="stoplabel"><span data-en="Resumed" data-ar="استئناف">Resumed</span> <span class="num">8 Sep</span></div></div>
+              <div><div class="stopdot"></div><div class="stoplabel"><span data-en="SMS approved" data-ar="اعتماد SMS">SMS approved</span> <span class="num">8 Sep</span></div></div>
+              <div><div class="stopdot"></div><div class="stoplabel"><span data-en="Today" data-ar="اليوم">Today</span> · <span class="num">12 Sep</span></div></div>
             </div>
           </div>
 
-          <div class="sectiontitle">Evidence concerning you</div>
-          <div class="evidencerow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2h9l5 5v15H6z"/></svg>Your approval — SMS notifications, 8 Sep</div>
-          <div class="evidencerow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2h9l5 5v15H6z"/></svg>UAT sign-off — not yet due</div>
+          <div class="sectiontitle" data-en="Evidence concerning you" data-ar="الوثائق الخاصة بك">Evidence concerning you</div>
+          <div class="evidencerow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2h9l5 5v15H6z"/></svg><span data-en="Your approval — SMS notifications, 8 Sep" data-ar="موافقتك — إشعارات SMS، 8 سبتمبر">Your approval — SMS notifications, 8 Sep</span></div>
+          <div class="evidencerow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2h9l5 5v15H6z"/></svg><span data-en="UAT sign-off — not yet due" data-ar="توقيع اعتماد UAT — لم يحن موعده بعد">UAT sign-off — not yet due</span></div>
         </div>
       </div>
     </section>
@@ -858,26 +937,78 @@
 </div>
 
 <script>
-  // view switching
-  document.querySelectorAll('.navitem').forEach(function(btn){
-    btn.addEventListener('click', function(){
-      document.querySelectorAll('.navitem').forEach(function(b){b.classList.remove('active');});
-      document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active');});
-      btn.classList.add('active');
-      document.getElementById(btn.dataset.view).classList.add('active');
+  var currentLang = 'en';
+
+  // Static date labels (stop buttons, track labels, ledger rows, promise blocks, etc.) are plain
+  // "D MMM"-style text, not routed through the dynamic formatDate() engine below. Rather than hand-write
+  // ~26 individual Arabic date strings (real risk of a typo slipping through), translate month
+  // abbreviations systematically and reversibly wherever they appear inside a .num element.
+  var monthEnToAr = {Jan:'يناير',Feb:'فبراير',Mar:'مارس',Apr:'أبريل',May:'مايو',Jun:'يونيو',Jul:'يوليو',Aug:'أغسطس',Sep:'سبتمبر',Oct:'أكتوبر',Nov:'نوفمبر',Dec:'ديسمبر'};
+  var monthArToEn = {};
+  Object.keys(monthEnToAr).forEach(function(k){ monthArToEn[monthEnToAr[k]] = k; });
+  function translateMonthsInText(text, lang){
+    var map = (lang === 'ar') ? monthEnToAr : monthArToEn;
+    var re = new RegExp('(' + Object.keys(map).join('|') + ')', 'g');
+    return text.replace(re, function(m){ return map[m]; });
+  }
+
+  function applyLang(lang){
+    currentLang = lang;
+    document.documentElement.lang = lang;
+    document.documentElement.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+    document.getElementById('langEnBtn').classList.toggle('sel', lang === 'en');
+    document.getElementById('langArBtn').classList.toggle('sel', lang === 'ar');
+    document.querySelectorAll('[data-en][data-ar]').forEach(function(el){
+      el.innerHTML = (lang === 'ar') ? el.getAttribute('data-ar') : el.getAttribute('data-en');
     });
+    document.querySelectorAll('[data-en-title][data-ar-title]').forEach(function(el){
+      el.setAttribute('title', lang === 'ar' ? el.getAttribute('data-ar-title') : el.getAttribute('data-en-title'));
+    });
+    document.querySelectorAll('.num').forEach(function(el){
+      el.textContent = translateMonthsInText(el.textContent, lang);
+    });
+    renderDay(parseInt(document.getElementById('scrubrange').value, 10));
+  }
+  document.getElementById('langEnBtn').addEventListener('click', function(){ applyLang('en'); });
+  document.getElementById('langArBtn').addEventListener('click', function(){ applyLang('ar'); });
+
+  // view switching
+  function goToView(viewId){
+    document.querySelectorAll('.navitem').forEach(function(b){ b.classList.toggle('active', b.dataset.view === viewId); });
+    document.querySelectorAll('.view').forEach(function(v){ v.classList.toggle('active', v.id === viewId); });
+  }
+  document.querySelectorAll('.navitem').forEach(function(btn){
+    btn.addEventListener('click', function(){ goToView(btn.dataset.view); });
   });
 
-  // portfolio filter chips (visual only, "All" vs status)
-  document.querySelectorAll('#portfolio .filterchips .filterchip').forEach(function(chip){
+  // inbox: click a project's attention row to jump straight into its Workspace
+  // (this mockup only has one project fully built out, so every row opens that same example —
+  // in the real tool each row would open its own project)
+  document.querySelectorAll('.attnrow[data-goto]').forEach(function(row){
+    row.addEventListener('click', function(){ goToView(row.dataset.goto); });
+  });
+
+  // inbox: expand/collapse the quiet-projects line
+  document.getElementById('cleanline').addEventListener('click', function(){
+    var list = document.getElementById('cleanlist');
+    var toggle = this.querySelector('.cleantoggle');
+    var showing = list.classList.toggle('show');
+    toggle.setAttribute('data-en', showing ? 'hide' : 'show');
+    toggle.setAttribute('data-ar', showing ? 'إخفاء' : 'عرض');
+    toggle.textContent = (currentLang === 'ar') ? toggle.getAttribute('data-ar') : toggle.getAttribute('data-en');
+  });
+
+  // portfolio filter chips (visual only, "All" vs status) — matched against the English label regardless of active language
+  var portfolioStatusEn = ['e-Crime Portal Enhancement','Anti-Fraud Intake','Custody Digital Intake','Forensics Chain-of-Custody Tracker','Patrol Resource Optimizer','Narcotics Case Linkage'];
+  document.querySelectorAll('#portfolio .filterchips .filterchip').forEach(function(chip, idx){
     chip.addEventListener('click', function(){
       document.querySelectorAll('#portfolio .filterchips .filterchip').forEach(function(c){c.classList.remove('sel');});
       chip.classList.add('sel');
-      var wanted = chip.textContent.trim();
+      var wantedEn = chip.getAttribute('data-en');
       document.querySelectorAll('#portfoliobody tr').forEach(function(row){
-        if(wanted === 'All'){ row.style.display=''; return; }
-        var chipText = row.querySelector('.chip').textContent;
-        row.style.display = chipText.indexOf(wanted) !== -1 ? '' : 'none';
+        if(wantedEn === 'All'){ row.style.display=''; return; }
+        var chipEnText = row.querySelector('.chip span') ? row.querySelector('.chip span').getAttribute('data-en') : '';
+        row.style.display = chipEnText.indexOf(wantedEn) !== -1 ? '' : 'none';
       });
     });
   });
@@ -902,6 +1033,10 @@
     'Requirements':'#8B968D', 'Analysis':'#3F6E5E', 'Development':'#9C6B2E', 'Testing':'#A97A0A',
     'Security':'#6C5C86', 'UAT':'#4A6B8A', 'Deployment':'#6E8C5A', 'Trial':'#8C7B66'
   };
+  var phaseNameAr = {
+    'Requirements':'المتطلبات', 'Analysis':'التحليل', 'Development':'التطوير', 'Testing':'الاختبار',
+    'Security':'الأمن', 'UAT':'UAT', 'Deployment':'النشر', 'Trial':'تجربة', 'Held':'معلّق'
+  };
   var baseSegs = [
     {name:'Requirements', start:0, end:8},
     {name:'Analysis', start:8, end:18},
@@ -914,32 +1049,37 @@
   ];
   var KF = [
     {day:0, projLabel:'30 Nov 2026', segs:baseSegs,
-     what:'Baseline set.', meta:'Approved by Khalid Al Shamsi · evidence: Baseline-approval-memo.pdf'},
+     what:'Baseline set.', meta:'Approved by Khalid Al Shamsi · evidence: Baseline-approval-memo.pdf',
+     what_ar:'تم تحديد Baseline.', meta_ar:'اعتمدها خالد الشامسي · الإثبات: Baseline-approval-memo.pdf'},
     {day:20, projLabel:'pending — on hold', segs:[
        {name:'Requirements', start:0, end:8},{name:'Analysis', start:8, end:18},
        {name:'Development', start:18, end:20},{name:'Held', start:20, end:26, held:true, pending:true}
-     ], what:'Hold started.', meta:'Resources pulled for Anti-Fraud Intake · authorised by HQ order'},
+     ], what:'Hold started.', meta:'Resources pulled for Anti-Fraud Intake · authorised by HQ order',
+     projLabel_ar:'معلَّق — Hold', what_ar:'بدأ Hold.', meta_ar:'سُحبت الموارد لصالح استقبال مكافحة الاحتيال · بأمر من القيادة العامة'},
     {day:25, projLabel:'5 Dec 2026', segs:[
        {name:'Requirements', start:0, end:8},{name:'Analysis', start:8, end:18},
        {name:'Development', start:18, end:20},{name:'Held', start:20, end:25, held:true},
        {name:'Development', start:25, end:41},{name:'Testing', start:41, end:44},
        {name:'Security', start:44, end:49},{name:'UAT', start:49, end:56},
        {name:'Deployment', start:56, end:59},{name:'Trial', start:59, end:63}
-     ], what:'Hold resumed.', meta:'Team returned to e-Crime Portal Enhancement · +5 working days'},
+     ], what:'Hold resumed.', meta:'Team returned to e-Crime Portal Enhancement · +5 working days',
+     what_ar:'استُؤنف العمل بعد Hold.', meta_ar:'عاد الفريق إلى تطوير بوابة الجرائم الإلكترونية · +5 أيام عمل'},
     {day:26, projLabel:'10 Dec 2026', segs:[
        {name:'Requirements', start:0, end:8},{name:'Analysis', start:8, end:18},
        {name:'Development', start:18, end:20},{name:'Held', start:20, end:25, held:true},
        {name:'Development', start:25, end:46},{name:'Testing', start:46, end:49},
        {name:'Security', start:49, end:54},{name:'UAT', start:54, end:61},
        {name:'Deployment', start:61, end:64},{name:'Trial', start:64, end:68}
-     ], what:'Change request approved — SMS notifications.', meta:'Developer, 5 man-days · evidence: CR-SMS-approval.eml · +5 working days'},
+     ], what:'Change request approved — SMS notifications.', meta:'Developer, 5 man-days · evidence: CR-SMS-approval.eml · +5 working days',
+     what_ar:'تم اعتماد Change Request — إشعارات SMS.', meta_ar:'Developer، 5 أيام عمل · الإثبات: CR-SMS-approval.eml · +5 أيام عمل'},
     {day:27, projLabel:'12 Dec 2026', segs:[
        {name:'Requirements', start:0, end:8},{name:'Analysis', start:8, end:18},
        {name:'Development', start:18, end:20},{name:'Held', start:20, end:25, held:true},
        {name:'Development', start:25, end:48},{name:'Testing', start:48, end:51},
        {name:'Security', start:51, end:56},{name:'UAT', start:56, end:63},
        {name:'Deployment', start:63, end:66},{name:'Trial', start:66, end:70}
-     ], what:'Override applied — Development resized.', meta:'18 → 20 working days, justified after analysis · +2 working days'},
+     ], what:'Override applied — Development resized.', meta:'23 → 25 working days, justified after analysis · +2 working days',
+     what_ar:'تم تطبيق Override — تعديل Development.', meta_ar:'من 23 إلى 25 يوم عمل، بسبب تحديد أدق للنطاق بعد التحليل · +2 يوم عمل'},
     {day:29, projLabel:'12 Dec 2026', segs:[
        {name:'Requirements', start:0, end:8},{name:'Analysis', start:8, end:18},
        {name:'Development', start:18, end:20},{name:'Held', start:20, end:25, held:true},
@@ -947,10 +1087,13 @@
        {name:'Security', start:51, end:56},{name:'UAT', start:56, end:63},
        {name:'Deployment', start:63, end:66},{name:'Trial', start:66, end:70}
      ], preview:{start:70, end:73},
-     what:'Today. One change request awaiting your decision.', meta:'Arabic push templates — Developer, 3 man-days · if approved: +3 working days → 15 Dec'}
+     what:'Today. One change request awaiting your decision.', meta:'Arabic push templates — Developer, 3 man-days · if approved: +3 working days → 15 Dec',
+     what_ar:'اليوم. طلب Change Request واحد في انتظار قرارك.', meta_ar:'قوالب إشعارات بالعربية — Developer، 3 أيام عمل · في حال الاعتماد: +3 أيام عمل ← 15 ديسمبر'}
   ];
   var KFDAYS = KF.map(function(k){return k.day;});
   var compareOn = true, playing = false, playTimer = null;
+  var monthsAr = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+  var monthsEn = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
   function pct(d){ return (d/TOTAL*100).toFixed(2)+'%'; }
   function findKF(day){
@@ -961,15 +1104,17 @@
   function formatDate(day){
     var base = new Date(2026,7,14);
     var d = new Date(base.getTime() + day*86400000);
-    var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var months = (currentLang === 'ar') ? monthsAr : monthsEn;
     return d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
   }
   function renderDay(day){
     var kf = findKF(day);
-    document.getElementById('asofdate').textContent = formatDate(day) + (day===29?' (today)':'');
-    document.getElementById('quietnote').textContent = (day!==kf.day) ? ('Nothing changed today — plan as of ' + formatDate(kf.day) + '.') : '';
-    document.getElementById('projdate').textContent = kf.projLabel;
+    var ar = currentLang === 'ar';
+    document.getElementById('asofdate').textContent = formatDate(day) + (day===29?(ar?' (اليوم)':' (today)'):'');
+    document.getElementById('quietnote').textContent = (day!==kf.day) ? ((ar?'لم يتغير شيء في هذا اليوم — الخطة كما كانت في ':'Nothing changed today — plan as of ') + formatDate(kf.day) + '.') : '';
+    document.getElementById('projdate').textContent = ar ? (kf.projLabel_ar || kf.projLabel) : kf.projLabel;
     document.getElementById('playhead').style.left = pct(day);
+    document.getElementById('playhead').setAttribute('data-label', ar ? 'اليوم' : 'today');
     document.getElementById('ghostbar').style.width = compareOn ? pct(58) : '0%';
 
     var wrap = document.getElementById('segwrap');
@@ -980,9 +1125,10 @@
       el.style.left = pct(s.start);
       el.style.width = pct(s.end - s.start);
       if(!s.held){ el.style.background = phaseColor[s.name]; }
-      el.title = s.name + (s.held ? (s.pending ? ' — held, end not yet known' : ' — held, resumed after 5 working days') : '');
+      var dispName = ar ? (phaseNameAr[s.name] || s.name) : s.name;
+      el.title = dispName + (s.held ? (s.pending ? (ar?' — Hold، لم تنتهِ بعد':' — held, end not yet known') : (ar?' — Hold، استُؤنف بعد 5 أيام عمل':' — held, resumed after 5 working days')) : '');
       var lbl = document.createElement('span');
-      lbl.textContent = s.held ? 'held' : s.name;
+      lbl.textContent = s.held ? (ar?'Hold':'held') : dispName;
       el.appendChild(lbl);
       wrap.appendChild(el);
     });
@@ -994,9 +1140,9 @@
       prev.style.width = pct(kf.preview.end - kf.preview.start);
     } else { prev.style.display = 'none'; }
 
-    document.getElementById('calloutwhat').textContent = kf.what;
-    document.getElementById('calloutmeta').textContent = kf.meta;
-    document.getElementById('calloutquiet').textContent = (day!==kf.day) ? ('Most recent change: ' + formatDate(kf.day) + '.') : '';
+    document.getElementById('calloutwhat').textContent = ar ? kf.what_ar : kf.what;
+    document.getElementById('calloutmeta').textContent = ar ? kf.meta_ar : kf.meta;
+    document.getElementById('calloutquiet').textContent = (day!==kf.day) ? ((ar?'آخر تغيير: ':'Most recent change: ') + formatDate(kf.day) + '.') : '';
     document.getElementById('scrubrange').value = day;
     document.querySelectorAll('.stopbtn').forEach(function(b){ b.classList.toggle('active', parseInt(b.dataset.day,10)===kf.day); });
     document.querySelectorAll('.eventflag').forEach(function(f){ f.classList.toggle('past', parseInt(f.dataset.day,10)<=day); });
@@ -1019,16 +1165,22 @@
   document.getElementById('playbtn').addEventListener('click', function(){
     var btn = this;
     if(playing){
-      clearInterval(playTimer); playing = false; btn.textContent = '▶ Play Highlights';
+      clearInterval(playTimer); playing = false;
+      btn.innerHTML = (currentLang==='ar') ? btn.getAttribute('data-ar') : btn.getAttribute('data-en');
       return;
     }
     var curDay = parseInt(document.getElementById('scrubrange').value,10);
     var idx = KFDAYS.indexOf(curDay);
     if(idx === -1 || idx >= KFDAYS.length-1) idx = -1;
-    playing = true; btn.textContent = '❚❚ Pause';
+    playing = true;
+    btn.textContent = (currentLang==='ar') ? '❚❚ إيقاف' : '❚❚ Pause';
     playTimer = setInterval(function(){
       idx++;
-      if(idx >= KFDAYS.length){ clearInterval(playTimer); playing = false; btn.textContent = '▶ Play Highlights'; return; }
+      if(idx >= KFDAYS.length){
+        clearInterval(playTimer); playing = false;
+        btn.innerHTML = (currentLang==='ar') ? btn.getAttribute('data-ar') : btn.getAttribute('data-en');
+        return;
+      }
       renderDay(KFDAYS[idx]);
     }, 1900);
   });
