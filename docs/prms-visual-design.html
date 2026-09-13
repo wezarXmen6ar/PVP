@@ -214,6 +214,30 @@
   .cleanlist{display:none;padding:10px 16px 2px;font-size:0.8rem;color:var(--ink-faint);}
   .cleanlist.show{display:block;}
 
+  /* ---------- new project form ---------- */
+  .npform{max-width:640px;display:flex;flex-direction:column;gap:14px;}
+  .npform .card h4{margin-bottom:14px;}
+  .formfield{margin-bottom:14px;}
+  .formfield:last-child{margin-bottom:0;}
+  .formfield label{display:block;font-size:0.78rem;color:var(--ink-soft);font-weight:500;margin-bottom:6px;}
+  .formfield input[type=text],.formfield select,.formfield textarea{
+    width:100%;font-family:inherit;font-size:0.88rem;color:var(--ink);
+    background:var(--surface);border:1px solid var(--rule-strong);border-radius:var(--radius);
+    padding:9px 11px;}
+  html[dir="rtl"] .formfield select{background-position:left 11px center;}
+  .formfield input[type=text]:focus,.formfield select:focus,.formfield textarea:focus{
+    outline:none;border-color:var(--brass);background:var(--surface-raised);}
+  .formfield textarea{resize:vertical;min-height:64px;line-height:1.5;}
+  .formfield .hint{font-size:0.76rem;color:var(--ink-faint);margin:6px 2px 0;}
+  .pillgroup{display:flex;gap:8px;flex-wrap:wrap;}
+  .pill{padding:7px 14px;border-radius:20px;border:1px solid var(--rule-strong);
+    background:var(--surface-raised);font-size:0.82rem;color:var(--ink-soft);}
+  .pill.sel{background:var(--ink);color:#fff;border-color:var(--ink);}
+  .npactions{display:flex;gap:10px;justify-content:flex-end;}
+  html[dir="rtl"] .npactions{justify-content:flex-start;}
+  .npnote{font-size:0.78rem;color:var(--ink-faint);text-align:right;margin:0;}
+  html[dir="rtl"] .npnote{text-align:left;}
+
   /* ---------- workspace cards ---------- */
   .wsheader{background:var(--surface-raised);border:1px solid var(--rule);border-radius:var(--radius);
     padding:20px 22px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;}
@@ -515,7 +539,7 @@
     <section class="view" id="portfolio">
       <header class="topbar">
         <div><h1 data-en="Portfolio" data-ar="محفظة المشاريع">Portfolio</h1><div class="topbar-sub" data-en="Every project the department is delivering, one record each." data-ar="كل مشروع تنفّذه الإدارة، بسجل واحد له.">Every project the department is delivering, one record each.</div></div>
-        <button class="btn brass" data-en="New project" data-ar="مشروع جديد">New project</button>
+        <button class="btn brass" id="newprojectbtn" data-en="New project" data-ar="مشروع جديد">New project</button>
       </header>
       <div class="content">
 
@@ -612,6 +636,85 @@
             </tr>
           </tbody>
         </table>
+      </div>
+    </section>
+
+    <!-- ============ NEW PROJECT ============ -->
+    <section class="view" id="newproject">
+      <header class="topbar">
+        <div><h1 data-en="New Project" data-ar="مشروع جديد">New Project</h1><div class="topbar-sub" data-en="A record, not a plan yet — the timeline is built afterward on the project's own page." data-ar="سجل، وليس خطة بعد — يُبنى الجدول الزمني لاحقًا في صفحة المشروع نفسها.">A record, not a plan yet — the timeline is built afterward on the project's own page.</div></div>
+        <button class="btn secondary" id="npcancel1" data-en="Cancel" data-ar="إلغاء">Cancel</button>
+      </header>
+      <div class="content">
+        <div class="npform">
+
+          <div class="card">
+            <h4 data-en="What is it?" data-ar="ما هو المشروع؟">What is it?</h4>
+            <div class="formfield">
+              <label data-en="Name" data-ar="الاسم">Name</label>
+              <input type="text" data-en-placeholder="e.g. Custody Digital Intake" data-ar-placeholder="مثال: الاستقبال الرقمي للتوقيف" placeholder="e.g. Custody Digital Intake">
+            </div>
+            <div class="formfield">
+              <label data-en="Description" data-ar="الوصف">Description</label>
+              <textarea rows="3" data-en-placeholder="What is actually being built, in a couple of sentences." data-ar-placeholder="ما الذي سيتم بناؤه فعليًا، في جملتين." placeholder="What is actually being built, in a couple of sentences."></textarea>
+            </div>
+            <div class="formfield">
+              <label data-en="Standalone, or part of another system?" data-ar="مستقل، أم جزء من نظام آخر؟">Standalone, or part of another system?</label>
+              <input type="text" data-en-placeholder="e.g. Standalone — or “a new page inside the Officer Portal”" data-ar-placeholder="مثال: مستقل — أو «صفحة جديدة داخل بوابة الضابط»" placeholder="e.g. Standalone — or “a new page inside the Officer Portal”">
+            </div>
+          </div>
+
+          <div class="card">
+            <h4 data-en="Who owns it?" data-ar="من يملك المشروع؟">Who owns it?</h4>
+            <div class="formfield">
+              <label data-en="Owning department" data-ar="الإدارة المالكة">Owning department</label>
+              <select id="npdept">
+                <option data-en="CID" data-ar="الإدارة العامة للتحريات والبحث الجنائي">CID</option>
+                <option data-en="e-Crime Unit" data-ar="إدارة الجرائم الإلكترونية">e-Crime Unit</option>
+                <option data-en="Anti-Fraud" data-ar="إدارة مكافحة الاحتيال">Anti-Fraud</option>
+                <option data-en="Prisons" data-ar="الإدارة العامة للمؤسسات العقابية">Prisons</option>
+                <option data-en="Forensics" data-ar="الإدارة العامة للأدلة الجنائية">Forensics</option>
+                <option data-en="Police Stations" data-ar="الإدارة العامة لمراكز الشرطة">Police Stations</option>
+                <option data-en="Anti-Narcotics" data-ar="الإدارة العامة لمكافحة المخدرات">Anti-Narcotics</option>
+                <option data-en="GD of AI" data-ar="الإدارة العامة للذكاء الاصطناعي">GD of AI</option>
+              </select>
+            </div>
+            <div class="formfield">
+              <label data-en="Priority" data-ar="الأولوية">Priority</label>
+              <div class="pillgroup" id="nppriority">
+                <button type="button" class="pill" data-en="High" data-ar="عالية">High</button>
+                <button type="button" class="pill sel" data-en="Medium" data-ar="متوسطة">Medium</button>
+                <button type="button" class="pill" data-en="Low" data-ar="منخفضة">Low</button>
+              </div>
+            </div>
+            <div class="formfield">
+              <label data-en="Business PM" data-ar="Business PM">Business PM</label>
+              <input type="text" data-en-placeholder="Name, from the owning department" data-ar-placeholder="الاسم، من الإدارة المالكة" placeholder="Name, from the owning department">
+            </div>
+          </div>
+
+          <div class="card">
+            <h4 data-en="Where did it come from?" data-ar="من أين جاء المشروع؟">Where did it come from?</h4>
+            <div class="formfield">
+              <div class="pillgroup" id="nporigin">
+                <button type="button" class="pill sel" data-origin="hq" data-en="HQ directive" data-ar="توجيه من القيادة العامة">HQ directive</button>
+                <button type="button" class="pill" data-origin="dept" data-en="Departmental request" data-ar="طلب من الإدارة">Departmental request</button>
+              </div>
+            </div>
+            <div class="formfield" id="npvaluejust" style="display:none">
+              <label data-en="Value justification" data-ar="مبرر القيمة">Value justification</label>
+              <textarea rows="3" data-en-placeholder="The studied need and expected value behind this project." data-ar-placeholder="الحاجة المدروسة والقيمة المتوقعة من هذا المشروع." placeholder="The studied need and expected value behind this project."></textarea>
+              <p class="hint" data-en="Required when the request comes from a department — this is the study the BRD requires before acceptance." data-ar="مطلوبة عندما يكون الطلب من إدارة — وهي الدراسة التي يشترطها BRD قبل القبول.">Required when the request comes from a department — this is the study the BRD requires before acceptance.</p>
+            </div>
+          </div>
+
+          <div class="npactions">
+            <button class="btn secondary" id="npcancel2" data-en="Cancel" data-ar="إلغاء">Cancel</button>
+            <button class="btn brass" id="npcreate" data-en="Create project" data-ar="إنشاء المشروع">Create project</button>
+          </div>
+          <p class="npnote" data-en="Team assignment happens afterward, from the project's own page." data-ar="يتم تعيين الفريق لاحقًا، من صفحة المشروع نفسها.">Team assignment happens afterward, from the project's own page.</p>
+
+        </div>
       </div>
     </section>
 
@@ -964,6 +1067,9 @@
     document.querySelectorAll('[data-en-title][data-ar-title]').forEach(function(el){
       el.setAttribute('title', lang === 'ar' ? el.getAttribute('data-ar-title') : el.getAttribute('data-en-title'));
     });
+    document.querySelectorAll('[data-en-placeholder][data-ar-placeholder]').forEach(function(el){
+      el.setAttribute('placeholder', lang === 'ar' ? el.getAttribute('data-ar-placeholder') : el.getAttribute('data-en-placeholder'));
+    });
     document.querySelectorAll('.num').forEach(function(el){
       el.textContent = translateMonthsInText(el.textContent, lang);
     });
@@ -979,6 +1085,28 @@
   }
   document.querySelectorAll('.navitem').forEach(function(btn){
     btn.addEventListener('click', function(){ goToView(btn.dataset.view); });
+  });
+
+  // New Project: entry point from Portfolio, and its cancel/create actions
+  document.getElementById('newprojectbtn').addEventListener('click', function(){ goToView('newproject'); });
+  document.getElementById('npcancel1').addEventListener('click', function(){ goToView('portfolio'); });
+  document.getElementById('npcancel2').addEventListener('click', function(){ goToView('portfolio'); });
+  document.getElementById('npcreate').addEventListener('click', function(){
+    // mockup only — a real save would post the record and land on its new Workspace page
+    goToView('portfolio');
+  });
+
+  // New Project: single-select pill groups (priority, origin)
+  document.querySelectorAll('.npform .pillgroup').forEach(function(group){
+    group.querySelectorAll('.pill').forEach(function(p){
+      p.addEventListener('click', function(){
+        group.querySelectorAll('.pill').forEach(function(o){ o.classList.remove('sel'); });
+        p.classList.add('sel');
+        if(group.id === 'nporigin'){
+          document.getElementById('npvaluejust').style.display = (p.dataset.origin === 'dept') ? '' : 'none';
+        }
+      });
+    });
   });
 
   // inbox: click a project's attention row to jump straight into its Workspace
