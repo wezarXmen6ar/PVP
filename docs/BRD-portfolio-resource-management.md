@@ -12,8 +12,8 @@
 |---|---|
 | **Document title** | Business Requirements Document — Portfolio & Resource Management System |
 | **Working system name** | PRMS (working title — see §19, OQ-01) |
-| **Version** | 0.1 — Draft for internal review |
-| **Date** | 9 September 2026 |
+| **Version** | 0.2 — Draft for internal review |
+| **Date** | 13 September 2026 |
 | **Author** | Technical Project Manager, General Department of Artificial Intelligence |
 | **Owning department** | General Department of Artificial Intelligence (GD of AI) |
 | **Intended audience** | Director, GD of AI (primary); GD of AI delivery leadership; the team who will later build the system |
@@ -24,6 +24,7 @@
 | Version | Date | Author | Summary |
 |---|---|---|---|
 | 0.1 | 9 Sep 2026 | Technical PM, GD of AI | Initial draft. Scope, problem statement, business and functional requirements, business rules, conceptual data model. |
+| 0.2 | 13 Sep 2026 | Technical PM, GD of AI | Added the internal structure of GD of AI and the requesting-side hierarchy captured so far (§3.1). Added §4.4, delivery dependency problems, as a fourth problem driver, and renumbered the cost of inaction to §4.5. Added OBJ-08, BR-15 to BR-17, the `FR-EXT` requirement group (§10.8), RULE-15 and RULE-16, and the `DeliveryPartnerUnit`, `ExternalCommitment` and `CommitmentDateHistory` entities. **Amended RULE-11 to add external commitment overrun as a fourth term** — without it the reconciliation was not satisfiable for the most common cause of slippage. Added §7.3 delivery partners and the GD of AI visibility boundary; added RISK-09 to RISK-11. |
 
 ### 1.2 How to Read This Document
 
@@ -35,7 +36,9 @@ Sections 1–8 are written for business readers and can be read standalone. Sect
 
 The General Department of Artificial Intelligence is the central delivery department for digitalisation and automation across Dubai Police. Other general departments own the business problems; GD of AI supplies the Business Analysts, Developers, Tech Leads and Technical Project Managers who deliver the solutions.
 
-That model puts GD of AI at the intersection of two groups who do not see each other's constraints. Business owners in the other general departments request new requirements without understanding that each one consumes finite capacity and moves a delivery date. Police HQ halts running projects to insert higher-priority work, then expects the halted projects to land on their original dates. GD of AI absorbs the gap between these expectations and its actual capacity, and currently has no way to make that gap visible.
+That model puts GD of AI at the intersection of parties who do not see each other's constraints. Business owners in the other general departments request new requirements without understanding that each one consumes finite capacity and moves a delivery date. Police HQ halts running projects to insert higher-priority work, then expects the halted projects to land on their original dates. GD of AI absorbs the gap between these expectations and its actual capacity, and currently has no way to make that gap visible.
+
+A third source of delay sits closer to home. Mandatory segments of every project — deployment, infrastructure and security testing — are performed by units outside the Department of Internal Applications, which holds the delivery staff. That work is agreed and dated in advance, and the agreed date is routinely missed. The Technical Project Manager carries the delivery date but has no authority over these units, and no means of recording the delay they cause, so it is absorbed silently and ultimately read as GD of AI's own slippage (§4.4).
 
 Today the entire portfolio is tracked in Excel and reported through PowerPoint decks rebuilt by hand for every meeting. The result is status information that is inconsistent between meetings, dependent on whoever prepared it, and unable to answer the one question that matters: *what did this decision actually cost?*
 
@@ -47,7 +50,9 @@ The system serves two audiences. GD of AI staff use the full application to mana
 2. **What does halting this project cost?** — which project was displaced, by what, for how long, and its revised date.
 3. **What is the true state of the portfolio right now?** — live, consistent, and identical for everyone who opens it.
 
-The central value is not project tracking; established tools already do that. The value is **attribution**: converting "GD of AI is behind schedule" into a specific, auditable, and neutral statement of cause. This document defines the requirements for that system.
+Separately, and visible only within GD of AI, the system records every segment handed to a delivery partner unit with the date that unit committed to and the date it actually delivered. This gives the Director something no current process produces: **a portfolio-wide total of the delivery time lost inside the general department itself**, attributed to the specific unit responsible. A Technical PM cannot make Information Security faster; the Director can, and this is the evidence that makes that a conversation rather than a complaint (§4.4, §7.3).
+
+The central value is not project tracking; established tools already do that. The value is **attribution**: converting "GD of AI is behind schedule" into a specific, auditable, and neutral statement of cause — whether that cause sits with a business owner, with HQ, or inside the department's own walls. This document defines the requirements for that system.
 
 The first release is a locally-running prototype focused on the capacity and assignment engine, intended for demonstration to the Director of GD of AI. Production deployment concerns are documented separately in §13.2 and are explicitly out of scope for this release.
 
@@ -63,6 +68,34 @@ Each general department contains sub-departments, which contain sections, which 
 
 **Relevance to this system:** a project's business owner must be identifiable at the correct organisational level, and the portfolio must be reportable by parent general department. The system therefore models the departmental hierarchy, but only to the depth needed to identify and roll up ownership (§12).
 
+#### Requesting side — known structure
+
+Recorded as confirmed; this list is incomplete and will be extended.
+
+| General Department | Sub-departments captured so far |
+|---|---|
+| **CID** (Criminal Investigation) | e-Crime; Anti-Fraud; Anti-Money Laundering; Criminal Analysis *(further sub-departments to be added)* |
+| **Police Stations** | *not yet captured* |
+| **Anti-Narcotics** | *not yet captured* |
+| **Forensic Science and Criminology** | *not yet captured* |
+| **Punitive and Correctional Establishments** (Prisons) | *not yet captured* |
+
+#### Delivery side — the internal structure of GD of AI
+
+This structure is material to the system, not merely descriptive: it defines the boundary between the staff whose capacity GD of AI manages and the units it depends on but does not control (§4.4).
+
+| Unit | Position | Role in delivery |
+|---|---|---|
+| **Department of Internal Applications** | Sub-department of GD of AI | Holds the Technical PMs, Business Analysts, Tech Leads, Developers and designers. **This is the resource pool modelled in §12, and the department that operates PRMS.** |
+| **Department of Smart Operations** | Sub-department of GD of AI | Parent of the sections below. Participates in **every** project, performing work agreed and cleared in advance, but its staff are **not** part of the resource pool and its capacity is not managed by Internal Applications. |
+| — Database section | Section of Smart Operations | **Deployment** of every project |
+| — Infrastructure section | Section of Smart Operations | Hardware provisioning, rack alignment and related infrastructure work |
+| — Networking section | Section of Smart Operations | Network provisioning and configuration |
+| — Data Centre section | Section of Smart Operations | Data centre facilities |
+| **Department of Information Security** | **Independent** — sits under no general department | **Security testing** of every project |
+
+**The critical distinction.** Internal Applications staff are *resources*: finite, allocatable, and accountable to the Technical PM. Smart Operations sections and Information Security are *delivery partners*: they hold mandatory segments of every project's critical path, they are represented on the project team, but they are **outside the Technical PM's authority and outside the capacity model entirely.** PRMS must never model their capacity or purport to schedule them. What it must do is record what was asked of them, what they committed to, and what actually happened — see §4.4, §10.8 and RULE-15.
+
 ### 3.2 The Role of GD of AI
 
 The General Department of Artificial Intelligence is a central delivery function. It does not own the business processes it automates; it owns the capability to automate them. Its role is to develop and manage the projects that digitalise and automate core police business operations on behalf of the other general departments.
@@ -70,8 +103,9 @@ The General Department of Artificial Intelligence is a central delivery function
 This creates a structural asymmetry that underlies every problem in §4:
 
 - **Demand is distributed.** Any general department, and Police HQ, can generate demand on GD of AI.
-- **Supply is centralised and finite.** Developers, BAs, Tech Leads and Technical PMs sit in one pool inside GD of AI.
+- **Supply is centralised and finite.** Developers, BAs, Tech Leads and Technical PMs sit in one pool, held by the **Department of Internal Applications** within GD of AI (§3.1).
 - **No requesting party sees the whole demand picture.** Each business owner sees only their own project. HQ sees priorities, not capacity.
+- **Delivery is not wholly within the delivering department's control.** Mandatory segments of every project — deployment, infrastructure, security testing — are executed by units outside Internal Applications (§3.1). The Technical PM carries the delivery date but does not command every step on the path to it (§4.4).
 
 ### 3.3 How Projects Originate
 
@@ -139,12 +173,33 @@ The critical point is the last one. Reprioritisation is a legitimate command dec
 | **No portfolio-level effect analysis** | Cannot show what adding a project does to everything already committed |
 | **No record of why a date changed** | Variance cannot be explained after the fact, so it defaults to being GD of AI's fault |
 
-### 4.4 Cost of Taking No Action
+### 4.4 Delivery Dependency Problems (Units Outside Internal Applications)
+
+Every project contains mandatory segments executed by units that the Technical PM does not manage: deployment by the Database section, infrastructure and rack work by the Infrastructure section, and security testing by the independent Department of Information Security (§3.1). This work is agreed and cleared in advance, and a completion date is committed at handover — **the committed date is routinely missed.**
+
+| Problem | Consequence |
+|---|---|
+| **Work handed to a delivery partner is frequently returned late** | Slippage enters the project from a source the Technical PM cannot influence |
+| **Response to a handover is itself often delayed** | Work sits unstarted after submission; the delay accrues before any work begins, and is invisible while it does |
+| **The delay is not attributable to a named unit** | The existing hold taxonomy (RULE-12) records only the generic reason *"Blocked by external or technical dependency"* — it cannot say which unit, so nothing can be aggregated |
+| **Recording it requires a formal Hold** | A hold is too heavyweight for a routine six-day overrun, so in practice the slip is never recorded at all |
+| **No record exists of what was committed** | Because no promised date is held, a late return cannot be distinguished from work that simply took the time it takes |
+| **The resulting variance is unexplained** | Under RULE-11 the date moves with no recorded cause, so it is flagged as unexplained residual — the system detects that something moved the date but cannot name it |
+| **The delay is ultimately attributed to GD of AI** | Externally, the project is simply late; the segment that caused it is invisible to everyone outside the delivery team |
+
+**This is the internal counterpart of §4.1 and §4.2, and structurally identical to both.** In each case a cost is incurred by one party and paid by another while remaining invisible: business owners impose it through scope, HQ imposes it through reprioritisation, and delivery partners impose it through late returns. The system's answer in the first two cases — record the cause, quantify it in working days, attribute it to its origin — is the same answer required here.
+
+It differs in one respect that shapes the requirement. Business owners and HQ are outside GD of AI and consume a read-only view. Delivery partners sit **inside the same general department**, under the same Director. The Technical PM has no authority to make Information Security faster; the Director of GD of AI does. Aggregated per-unit delay data is therefore directed at an audience that can act on it, and its visibility is deliberately bounded to GD of AI (§7.3, FR-EXT-11).
+
+A second consequence follows from the delay being routine rather than exceptional. Where a unit's returns are *consistently* late by a recognisable margin, that margin is a **planning input, not merely a grievance**: once sufficient history exists, a project can be baselined against what a segment historically takes rather than against what was promised, and a predictable slip stops being absorbed as though it were a surprise (FR-EXT-12).
+
+### 4.5 Cost of Taking No Action
 
 - Preparation effort for status reporting continues to be consumed on every request, indefinitely.
 - Delivery dates continue to slip for reasons that are real but undocumented, progressively eroding the credibility of GD of AI's estimates.
 - Prioritisation and scope decisions continue to be made without visibility of their cost, producing outcomes that no party would have chosen with full information.
 - Staff over-allocation remains invisible until it appears as missed dates or attrition.
+- Delay originating in delivery partner units continues to accumulate unrecorded and unattributed, and continues to be absorbed by GD of AI as though it were its own — with no evidence available to the one person, the Director, who could address it.
 - Every new project increases the coordination load on Technical PMs superlinearly, because there is no system holding the state.
 
 ---
@@ -160,6 +215,7 @@ The critical point is the last one. Reprioritisation is a legitimate command dec
 | **Baseline retention** | None — the originally approved timeline is not durably retained for comparison |
 | **Change requests** | No formal capture, costing, or approval record |
 | **Hold / halt records** | Not formally recorded; cause of delay is retained only in individuals' memory |
+| **Delivery partner handovers** | Committed dates are agreed verbally or by email and are not retained; no record exists of what was promised, when work was handed over, or how late it was returned |
 | **Status reporting** | Microsoft PowerPoint, rebuilt by hand for each meeting |
 | **Stakeholder access** | None — stakeholders receive prepared presentations only |
 | **Audit history** | None |
@@ -176,9 +232,10 @@ The critical point is the last one. Reprioritisation is a legitimate command dec
 | **OBJ-02** | Make the cost of a new requirement visible at the moment it is requested | Every change request records added effort in man-days and the resulting revised delivery date before acceptance | §4.1 |
 | **OBJ-03** | Make the cost of reprioritisation visible to the decision-maker | Every hold records its reason, its duration, the displacing project where applicable, and the revised delivery date of the displaced project | §4.2 |
 | **OBJ-04** | Provide an accurate view of departmental capacity and workload | Utilisation is visible per person and per role; over-allocation is flagged as it occurs | §4.3 |
-| **OBJ-05** | Make every timeline change attributable | 100% of variance between baseline and current dates is accounted for by a recorded change request or hold record | §4.1, §4.2, §4.3 |
+| **OBJ-05** | Make every timeline change attributable | 100% of variance between baseline and current dates is accounted for by a recorded change request, hold record, override or external commitment slip | §4.1, §4.2, §4.3, §4.4 |
 | **OBJ-06** | Eliminate manual preparation of routine status reporting | Stakeholders self-serve current status from the visualization page; no deck is built for routine status meetings | §4.2 |
 | **OBJ-07** | Support informed decisions on new demand before commitment | The earliest realistic start date for a proposed project can be determined from current capacity | §4.3 |
+| **OBJ-08** | Make delay originating outside Internal Applications visible, attributable to the responsible unit, and quantified | Every segment of work held by a delivery partner records a committed date and an actual date; the working days lost are attributed to the named unit and aggregated across the portfolio for the Director | §4.4 |
 
 ---
 
@@ -207,7 +264,23 @@ The critical point is the last one. Reprioritisation is a legitimate command dec
 
 These parties **do not hold accounts and do not enter data.** They consume a presentation-oriented view. This is a deliberate scoping decision: it removes access administration, permission modelling and data-integrity risk from the first release, while still delivering the transparency that resolves §4.1 and §4.2.
 
-### 7.3 Stakeholder Interest Summary
+### 7.3 Delivery Partners (Recorded, Not Users)
+
+A third category, distinct from both of the above: units that perform mandatory project work but neither operate the system nor consume its output.
+
+| Unit | System access | Represented in PRMS as |
+|---|---|---|
+| **Database section** (Smart Operations) | **None** | Owner of externally-held deployment work; subject of external commitment records |
+| **Infrastructure section** (Smart Operations) | **None** | Owner of externally-held infrastructure work |
+| **Networking section** (Smart Operations) | **None** | Owner of externally-held network work |
+| **Data Centre section** (Smart Operations) | **None** | Owner of externally-held data centre work |
+| **Department of Information Security** (independent) | **None** | Owner of externally-held security testing |
+
+**These units hold no accounts, enter no data, and are not modelled as resources.** Their capacity, staffing and utilisation are outside the scope of this system entirely (§8.2). PRMS records only the interface with them: what was requested, what date was committed, and what date was actually delivered (§10.8).
+
+**Visibility boundary.** Per-unit aggregate delay data (FR-EXT-10, FR-EXT-11) is available to Technical PMs, Junior TPMs and the Director of GD of AI only. It is **not** exposed on the stakeholder visualization page, not shown to Police HQ, and not shown to business owners. The rationale is in §4.4: the data exists to enable a conversation within GD of AI, by the one person with authority over these units — not to relocate blame onto a sibling department in front of an external audience. See RISK-09.
+
+### 7.4 Stakeholder Interest Summary
 
 | Group | What they currently lack | What PRMS gives them |
 |---|---|---|
@@ -215,6 +288,7 @@ These parties **do not hold accounts and do not enter data.** They consume a pre
 | Business owners | Understanding of what their requests cost | The man-day cost and revised date of each request, before they commit to it |
 | GD of AI management | Visibility of capacity and its limits | Utilisation, bottleneck roles, and realistic start dates for new demand |
 | Technical PMs | A system that holds project state and history | Automated recalculation and a defensible, auditable record of every change |
+| GD of AI Director | Evidence of where delivery time is actually lost inside the general department | Per-unit totals for delay originating in Smart Operations sections and Information Security, aggregated across the portfolio |
 
 ---
 
@@ -231,8 +305,9 @@ The first release centres on the **capacity and assignment engine**, because eve
 5. **Schedule calculation** — derive duration and delivery dates from effort, assigned resources and a working calendar
 6. **Change request management** — capture new requirements, cost them in man-days, calculate and record the resulting date impact
 7. **Hold management** — record holds with reason codes, link displaced projects to displacing projects, and recalculate downstream dates automatically
-8. **Stakeholder visualization page** — read-only view covering portfolio status, change request impact, and hold impact
-9. **Audit history** — a durable record of every status, date, scope and assignment change with cause and timestamp
+8. **External commitment tracking** — record each segment held by a delivery partner unit with its committed and actual dates, attribute the resulting delay to the named unit, and aggregate it per unit across the portfolio
+9. **Stakeholder visualization page** — read-only view covering portfolio status, change request impact, and hold impact
+10. **Audit history** — a durable record of every status, date, scope and assignment change with cause and timestamp
 
 ### 8.2 Out of Scope — First Release
 
@@ -247,7 +322,9 @@ The first release centres on the **capacity and assignment engine**, because eve
 | User accounts for business owners and HQ | Read-only visualization page only, per §7.2. |
 | Authentication, SSO and role-based access control | Local single-user prototype (§13.1). Required for production (§13.2). |
 | Arabic language and RTL interface | Required for production (§13.2); not required for the internal prototype. |
-| Vendor and contractor resource management | The pool is GD of AI internal staff only in this release. |
+| Vendor and contractor resource management | The pool is Internal Applications staff only in this release. |
+| Capacity, staffing or scheduling of delivery partner units | Smart Operations sections and Information Security are outside the Technical PM's authority and are modelled as dependencies, not resources (§7.3, FR-EXT-13). PRMS records the interface with them, never their internal workings. |
+| Accounts for delivery partner units | These units do not operate the system and do not enter data (§7.3). Allowing a unit to record its own commitment dates is a candidate for a later phase, not this release. |
 | Automated notifications and alerting | Warnings are surfaced in the interface, not pushed. |
 
 ### 8.3 Deferred to Later Phases
@@ -272,10 +349,13 @@ Business requirements state *what the business needs*, in business language. Eac
 | **BR-08** | Every new requirement raised after baseline approval must be recorded as a change request, costed in man-days, and its effect on the delivery date calculated and presented before it is accepted. | OBJ-02 |
 | **BR-09** | Every suspension of work on a project must be recorded with a reason, a duration, and — where the cause is reprioritisation — a link to the project that displaced it. | OBJ-03 |
 | **BR-10** | When a project is held, its delivery date must be recalculated automatically to reflect the suspension. | OBJ-03, OBJ-05 |
-| **BR-11** | The difference between a project's baseline dates and its current dates must at all times be fully explained by its recorded change requests and holds. | OBJ-05 |
+| **BR-11** | The difference between a project's baseline dates and its current dates must at all times be fully explained by its recorded change requests, holds, overrides and external commitment slips. | OBJ-05 |
 | **BR-12** | Business owners and HQ stakeholders must be able to view current portfolio status, and the cause and effect of every timeline change, without a report being prepared for them. | OBJ-01, OBJ-06 |
 | **BR-13** | The department must be able to determine the earliest date at which a proposed new project could realistically start, given current commitments. | OBJ-07 |
 | **BR-14** | Every material change to a project must be recorded in an audit history showing what changed, when, and why. | OBJ-05 |
+| **BR-15** | Each segment of project work performed by a unit outside the Department of Internal Applications must be recorded with the responsible unit named, the date it was handed over, the date that unit committed to, and the date it was actually delivered. | OBJ-08 |
+| **BR-16** | Working days lost to a delivery partner returning work later than committed must be attributed to that named unit, counted towards the project's variance, and reportable as a total per unit across the portfolio. | OBJ-05, OBJ-08 |
+| **BR-17** | The department must be able to see, per delivery partner unit, how its actual delivery times have historically compared with the dates it committed to, so that future plans can be based on observed performance rather than on the committed date alone. | OBJ-08 |
 
 ---
 
@@ -379,7 +459,29 @@ Priority is stated as **M** (must have — first release), **S** (should have �
 | FR-HLD-09 | The system shall display, for a project that displaced others, the list of projects it displaced and the total delay it caused. | M |
 | FR-HLD-10 | The system shall return a project to its prior status on resume. | M |
 
-### 10.8 Stakeholder Visualization Page — `FR-VIZ`
+### 10.8 External Commitments — `FR-EXT`
+
+Covers work forming part of a project but performed by a unit outside the Department of Internal Applications (§3.1, §7.3). An **external commitment** is the record of one such handover.
+
+The design constraint throughout this group: PRMS records the *interface* with these units — request, commitment, delivery — and never their capacity, staffing or internal scheduling.
+
+| ID | Requirement | Pri |
+|---|---|---|
+| FR-EXT-01 | The system shall allow a project phase or block to be designated as **externally held**, with a responsible unit selected from the registered delivery partner units (Database, Infrastructure, Networking, Data Centre, Information Security). | M |
+| FR-EXT-02 | The system shall record, for every external commitment: the responsible unit, the date the work was handed over, the date committed to by that unit, the actual delivery date, and the current state. | M |
+| FR-EXT-03 | The system shall support the following states for an external commitment: **Not yet handed over; Handed over — not started; In progress; Delivered**. | M |
+| FR-EXT-04 | The system shall calculate **response lag** as the working days between handover and the unit starting work, and shall display it as a running count while the commitment remains in *Handed over — not started*. | M |
+| FR-EXT-05 | The system shall calculate **overrun** as the working days between the committed date and the actual delivery date, where delivery is later than committed. | M |
+| FR-EXT-06 | The system shall raise a visible alert on a project when an external commitment passes its committed date without being delivered. | M |
+| FR-EXT-07 | The system shall record the overrun of an external commitment as an impact against the project's delivery date, attributed to the named responsible unit, and shall include it in the variance reconciliation (RULE-11, RULE-15). | M |
+| FR-EXT-08 | The system shall allow evidence of the commitment — an email, a document or a reference to a meeting decision — to be attached to an external commitment record, as proof of the date committed to. | M |
+| FR-EXT-09 | The system shall permit an external commitment's committed date to be revised, retaining every prior committed date in history, so that repeated re-commitment is itself visible. | M |
+| FR-EXT-10 | The system shall report, per delivery partner unit and over a selected period: number of commitments, number delivered late, mean response lag, mean overrun, and total working days of project delay attributed to that unit. | M |
+| FR-EXT-11 | The system shall restrict the per-unit aggregate reporting of FR-EXT-10 to Technical PMs, Junior TPMs and the Director of GD of AI, and shall exclude it from the stakeholder visualization page (§7.3). | M |
+| FR-EXT-12 | The system shall display, when an external segment is being planned, the historical mean overrun of the responsible unit for comparable segments, as an advisory input to the planned duration. | C |
+| FR-EXT-13 | The system shall not model the capacity, staffing, utilisation or internal schedule of any delivery partner unit. | M |
+
+### 10.9 Stakeholder Visualization Page — `FR-VIZ`
 
 The visualization page is read-only, requires no account, and is designed to be shown on screen in a meeting without preparation.
 
@@ -388,7 +490,7 @@ The visualization page is read-only, requires no account, and is designed to be 
 | FR-VIZ-01 | The system shall provide a read-only view of the portfolio requiring no data entry and no login. | M |
 | FR-VIZ-02 | The system shall display a portfolio overview: all projects with owning department, status, priority, current delivery date, and variance from baseline. | M |
 | FR-VIZ-03 | The system shall display a timeline (Gantt-style) view of the portfolio showing each project's baseline bar and current bar, so slippage is visible as a comparison. | M |
-| FR-VIZ-04 | The system shall display, per project, a variance breakdown attributing the total slippage to its component causes — each approved change request and each hold, with its contribution in working days. | M |
+| FR-VIZ-04 | The system shall display, per project, a variance breakdown attributing the total slippage to its component causes — each approved change request, each hold, and each external commitment overrun, with its contribution in working days. Where the cause is an external commitment, the segment is identified but the responsible unit is **not** named on this page (§7.3, FR-EXT-11). | M |
 | FR-VIZ-05 | The system shall display a change request impact view showing the requested change, its man-day cost, the current delivery date and the revised delivery date. | M |
 | FR-VIZ-06 | The system shall display a hold impact view showing which project was displaced, by which project, for how long, and the resulting revised delivery date. | M |
 | FR-VIZ-07 | The system shall display a capacity summary showing departmental utilisation by role and identifying bottleneck roles. | M |
@@ -398,7 +500,7 @@ The visualization page is read-only, requires no account, and is designed to be 
 | FR-VIZ-11 | The system shall present all variance information in neutral, factual language, stating cause without attributing fault (see RISK-03). | M |
 | FR-VIZ-12 | The system shall support export of the current view to a static format suitable for distribution where a live view cannot be shown. | S |
 
-### 10.9 Reporting and Audit — `FR-RPT`
+### 10.10 Reporting and Audit — `FR-RPT`
 
 | ID | Requirement | Pri |
 |---|---|---|
@@ -408,6 +510,8 @@ The visualization page is read-only, requires no account, and is designed to be 
 | FR-RPT-04 | The system shall report the number of change requests and total man-days added per owning department, over a selected period. | S |
 | FR-RPT-05 | The system shall report total working days lost to holds, broken down by hold reason. | S |
 | FR-RPT-06 | The system shall reconcile, per project, baseline delivery date plus all recorded impacts against current delivery date, and flag any unexplained residual variance (RULE-11). | M |
+| FR-RPT-07 | The system shall report total working days of delay attributed to delivery partner units, broken down by unit, subject to the visibility restriction of FR-EXT-11. | M |
+| FR-RPT-08 | The system shall report, for the portfolio, the three principal sources of accumulated delay side by side — approved change requests, reprioritisation holds, and external commitment overruns — so their relative magnitude is directly comparable. | M |
 
 ---
 
@@ -523,10 +627,13 @@ baseline_delivery_date
   + Σ (working-day impact of every approved change request)
   + Σ (held working days of every hold)
   + Σ (working-day effect of every recorded manual override)
+  + Σ (working-day overrun of every external commitment)
   = current_delivery_date
 ```
 
 Any residual difference is **unexplained variance** and must be flagged (FR-RPT-06). This rule is the mechanism that delivers OBJ-05: it makes it structurally impossible for a date to move without a recorded cause.
+
+> **On the fourth term.** External commitment overrun was added in version 0.2. Without it the rule was not satisfiable in practice: a delivery partner returning work later than committed moves the delivery date, but that movement corresponded to no term in the equation unless the Technical PM raised a formal Hold — which, for a routine overrun, does not happen (§4.4). The most frequent single cause of slippage was therefore the one cause the reconciliation could not name, and it surfaced as unexplained residual. The fourth term closes that gap.
 
 ### RULE-12 — Hold Reasons and Resource Disposition
 
@@ -541,6 +648,8 @@ Any residual difference is **unexplained variance** and must be flagged (FR-RPT-
 
 *Attribution* records where the cause of the delay originated. It is used for factual reporting only and is presented neutrally (FR-VIZ-11).
 
+> **Relationship to external commitments (RULE-15).** The reason *Blocked by external or technical dependency* is **not** the mechanism for recording delivery partner delay, and must not be used for it. A hold records that the project **stopped**; an external commitment overrun records that a segment of work **took longer than committed while remaining in progress**. The two are distinct events with distinct data, and conflating them was the defect identified in §4.4. This hold reason remains available for genuine stoppages caused by dependencies outside the project altogether — an unavailable third-party system, an unreleased platform, an external vendor.
+
 ### RULE-13 — Baseline Establishment and Re-Baselining
 
 A project's baseline is established when the timeline is approved by the business owner and HQ (§3.4, step 8). At that moment the current effort estimate and dates are copied to the baseline fields and become immutable.
@@ -550,6 +659,35 @@ A project may be **re-baselined** only by explicit action, requiring a justifica
 ### RULE-14 — Change Request Impact Application
 
 A change request's effort is applied to the project's current estimate, and its date impact committed, **only on approval** (FR-CHG-06). Prior to approval the impact is calculated and displayed but not applied, so it can be presented to the business owner as a projection (FR-CHG-10).
+
+### RULE-15 — External Commitment Measurement and Attribution
+
+Applies to every project segment designated as externally held (FR-EXT-01).
+
+**1. Two independent measurements are taken, not one.**
+
+```
+response_lag = working days between handover date and start date
+overrun      = working days between committed date and actual delivery date   (0 where delivered on or before the committed date)
+```
+
+Response lag measures *delay before work began*; overrun measures *delay in the work itself*. They are reported separately because they indicate different problems and, in the case described in §4.4, the former is frequently the larger.
+
+**2. Attribution is to a named unit.** Every external commitment names one responsible unit. Generic or unattributed external delay is not permitted — if the responsible unit cannot be named, the segment is not an external commitment and the delay must be recorded by another mechanism.
+
+**3. Only overrun moves the delivery date.** The planned duration of an externally held segment is already contained in the baseline. Therefore only the *excess* over the committed date propagates to the project's delivery date (RULE-03) and enters the variance reconciliation (RULE-11). Response lag is measured and reported, but is not double-counted: where it delays the eventual delivery, that delay is already expressed in the overrun.
+
+**4. Committed dates are versioned, never overwritten.** Where a unit revises its committed date, the prior date is retained (FR-EXT-09). Overrun is always measured against the **first** date committed after handover. A segment re-committed three times and delivered against the third date has not been delivered on time; the reconciliation must reflect that, and the history must show the re-commitments.
+
+**5. Aggregation is bounded.** Per-unit aggregate figures are visible only within GD of AI (FR-EXT-11, §7.3). Per-project variance remains visible to stakeholders, but identifies the delayed *segment* rather than the responsible unit.
+
+### RULE-16 — Observed Performance as a Planning Input
+
+Where a delivery partner unit has a sufficient history of completed commitments, the system derives that unit's **mean overrun** and **mean response lag** for comparable segments, and offers them as advisory figures when a new segment of the same type is planned (FR-EXT-12).
+
+These figures are **advisory only.** They are never applied automatically to a plan, never alter a baseline, and never appear as a committed date. The planned duration remains the Technical PM's decision; the system's role is to ensure that decision is made in sight of what has actually happened before, rather than solely on the date most recently committed.
+
+A minimum history is required before any such figure is displayed; below that threshold the system shows the sample size and no derived mean, rather than presenting an average of two observations as though it were a pattern.
 
 ---
 
@@ -567,6 +705,9 @@ A change request's effort is applied to the project's current estimate, and its 
 | **Assignment** | Commitment of a resource to a project | Project, resource, role, allocation percentage, start date, end date, active state, override acknowledgement |
 | **ChangeRequest** | A requirement raised after baseline | Project, title, description, requester, requesting department, date raised, state, effort per role, calculated day impact, date presented, date decided |
 | **HoldRecord** | A suspension of work | Project, reason, displacing project, start date, expected resume date, actual resume date, held working days, resource disposition, directing authority, note |
+| **DeliveryPartnerUnit** | An organisational unit that performs project work but is not part of the resource pool | Name, parent department, segment type normally owned (deployment / infrastructure / networking / data centre / security testing), active state. **No capacity, staffing or availability attributes** (FR-EXT-13) |
+| **ExternalCommitment** | One handover of a project segment to a delivery partner unit | Project, segment or block reference, responsible unit, handover date, first committed date, current committed date, start date, actual delivery date, state, response lag, overrun, evidence reference, note |
+| **CommitmentDateHistory** | A superseded committed date | External commitment, previous committed date, revised committed date, date of revision, reason |
 | **StatusHistory** | Record of a status transition | Project, from status, to status, date, user, reason |
 | **AuditEntry** | Record of any material change | Entity type, entity reference, field, previous value, new value, timestamp, user, reason |
 | **WorkingCalendar** | Definition of working time | Working days of week, public holiday dates |
@@ -585,8 +726,14 @@ Project ───(suspended by)──> HoldRecord
 HoldRecord ──(displaced by)──> Project                 the displacing project
 Project ───(tracked by)────> StatusHistory
 
+Project ───(depends on)────> ExternalCommitment ──(held by)──> DeliveryPartnerUnit
+ExternalCommitment ──(re-committed via)──> CommitmentDateHistory
+DeliveryPartnerUnit ──(belongs to)──> Department       Smart Operations, or none for Information Security
+
 Resource ──(unavailable during)──> Absence
 ```
+
+**Note the deliberate asymmetry.** `Resource` carries availability and is consumed by `Assignment`; `DeliveryPartnerUnit` carries neither and is never assigned. A project's relationship to its own staff is *allocation*; its relationship to a delivery partner is *dependency*. This mirrors the organisational reality in §3.1 and is the reason the two are separate entities rather than one entity with a flag.
 
 ### 12.3 Derived Values
 
@@ -598,7 +745,11 @@ These are calculated, never stored as independent editable values:
 | Project calculated duration | RULE-02 |
 | Project planned delivery date | RULE-03, unless overridden per RULE-05 |
 | Delivery variance | Current delivery date − baseline delivery date, in working days |
-| Variance breakdown | Σ change request impacts + Σ hold impacts + Σ override effects (RULE-11) |
+| Variance breakdown | Σ change request impacts + Σ hold impacts + Σ override effects + Σ external commitment overruns (RULE-11) |
+| External commitment response lag | Start date − handover date, in working days (RULE-15) |
+| External commitment overrun | Actual delivery date − **first** committed date, in working days, floored at zero (RULE-15) |
+| Per-unit delay total | Σ overruns of all commitments held by that unit, over a selected period (FR-EXT-10) |
+| Per-unit mean overrun | Mean overrun across that unit's completed commitments, shown only above a minimum sample size (RULE-16) |
 | Resource utilisation | Σ allocation percentages of active assignments ÷ availability factor |
 | Role capacity | Σ availability across all active resources in that role |
 | Earliest available start | First date on which unallocated capacity meets a proposed project's role requirements (FR-ASG-12) |
@@ -682,6 +833,9 @@ Recorded here so the gap between the prototype and a deployable system is explic
 | **RISK-06** | **Model oversimplification.** Whole-project allocation (RULE-09) and linear duration scaling (RULE-02) produce figures that experienced PMs recognise as wrong, undermining confidence in the whole system. | Medium | Medium | Manual override with recorded justification (RULE-05); state the limitations openly in the interface rather than presenting calculated figures as authoritative; treat per-phase allocation as the first enhancement after the first release. |
 | **RISK-07** | **Prototype-to-production gap.** A local prototype is approved by the Director and immediately expected in production, where §13.2 requirements apply. | Medium | High | Document the production gap explicitly (§13.2); present the prototype as a validation of the model, not as a deployable system; include the production readiness effort in any subsequent proposal. |
 | **RISK-08** | **Single point of knowledge.** The system depends on one person who understands both the model and the build. | Medium | Medium | This BRD; documented business rules in §11 sufficient for another team to implement; avoid undocumented behaviour. |
+| **RISK-09** | **Internal political exposure of delay attribution.** Per-unit figures name a *sibling department under the same Director* — Smart Operations sections and Information Security — rather than an external customer. This is materially more sensitive than RISK-03: those units are colleagues the delivery team must continue working with daily, and being measured without consultation may harden the very relationships the data is meant to improve. | High | Medium | Bound visibility to GD of AI and exclude it from the stakeholder page (FR-EXT-11, §7.3); report response lag and overrun as observations against *committed dates the units set themselves*, never as performance ratings; secure the Director's sponsorship before the data is used in any forum; consider informing the partner units that commitments are being recorded, rather than presenting the figures for the first time as an accusation. |
+| **RISK-10** | **External commitment data is not captured at handover.** The whole mechanism depends on the committed date being recorded at the moment of handover. If the Technical PM records it late or not at all, there is nothing to measure against and the reconciliation reverts to unexplained variance. | High | High | Make handover a single state change on a block the PM is already viewing, never a separate form (NFR-10); default the handover date to today; allow the commitment to be recorded with a date and no evidence, so a missing attachment never blocks capture; surface un-captured external segments as a project data-quality flag alongside staleness (FR-PRJ-09). |
+| **RISK-11** | **Observed-performance figures become self-fulfilling.** If planned durations are routinely inflated to a unit's historical mean overrun, the padding is absorbed and the unit is never held to its committed date, entrenching the delay rather than reducing it. | Medium | Medium | Keep RULE-16 figures strictly advisory and never auto-applied; continue to measure overrun against the unit's own committed date rather than against the padded plan, so the gap remains visible even where the plan has absorbed it; present the historical mean as context for negotiating the commitment, not as a substitute for it. |
 
 ---
 
@@ -698,6 +852,9 @@ Recorded here so the gap between the prototype and a deployable system is explic
 | **KPI-07** | Over-allocation incidents visible at the time of assignment rather than discovered later | 0% | 100% flagged at assignment |
 | **KPI-08** | Consistency of reported status between consecutive stakeholder meetings | Author-dependent | Single source; no discrepancy |
 | **KPI-09** | Projects delivered within their current (re-calculated) delivery date | Not measured | Measured from first release; improvement target set after one reporting period |
+| **KPI-10** | Proportion of externally held segments with a committed date recorded at handover | Not recorded | 100% — the precondition for KPI-11 and for RULE-11 (see RISK-10) |
+| **KPI-11** | Working days of portfolio delay attributable to named delivery partner units | Unknown and unmeasurable | Measured from first release; reduction target set by the Director after one reporting period |
+| **KPI-12** | Proportion of delivery partner commitments delivered on or before the first date committed | Unknown | Measured from first release; establishes the baseline for §4.4 |
 
 > KPI-09 is deliberately measured against the *current* date rather than the baseline. Measuring against a baseline that legitimate change requests and directed holds have moved would penalise GD of AI for decisions taken elsewhere — which is precisely the distortion this system exists to correct.
 
@@ -711,7 +868,10 @@ Recorded here so the gap between the prototype and a deployable system is explic
 | **BA** | Business Analyst |
 | **Business owner** | The general department, sub-department or section that owns the business process being digitalised and on whose behalf the project is delivered. |
 | **Change request** | A requirement raised after the baseline is approved, requiring effort estimation, impact calculation and a decision before it is accepted. |
+| **Committed date** | The completion date a delivery partner unit gives when project work is handed over to it. Retained permanently; overrun is measured against the *first* such date (RULE-15). |
+| **Delivery partner unit** | An organisational unit that performs a mandatory segment of project work but is not part of the resource pool and is outside the Technical PM's authority — the Smart Operations sections and the Department of Information Security (§3.1, §7.3). |
 | **Displacing project** | A project whose initiation or prioritisation caused resources to be withdrawn from another project, placing it on hold. |
+| **External commitment** | The record of one handover of a project segment to a delivery partner unit: the unit responsible, the handover date, the date committed to, the date delivered, and the resulting delay (§10.8). |
 | **GD of AI** | General Department of Artificial Intelligence — the central delivery department for digitalisation across Dubai Police. |
 | **General Department** | A top-level organisational unit of Dubai Police (e.g. CID, Anti-Narcotics, Forensics). |
 | **Higher-ups / HQ** | Police Headquarters senior leadership, who direct priorities and receive portfolio reporting. |
@@ -741,6 +901,11 @@ Recorded here so the gap between the prototype and a deployable system is explic
 | **OQ-06** | Should the read-only visualization page be reachable by stakeholders directly, or presented on screen by GD of AI in meetings? | Affects hosting and access approach even for the prototype (FR-VIZ-01, NFR-01). | Before build |
 | **OQ-07** | Are Technical PMs and BAs also subject to a practical limit on concurrent projects, beyond the aggregate rule (RULE-07)? | May require a per-role concurrent project ceiling in addition to percentage-based allocation. | Before build |
 | **OQ-08** | Are there existing Dubai Police project governance standards or templates that PRMS status reporting should conform to? | Alignment improves acceptance at HQ and may constrain the visualization design. | Before demonstration |
+| **OQ-09** | What are the remaining sub-departments of CID, and the sub-departmental structure of the other general departments? | Required to complete the requesting-side hierarchy in §3.1 and the owning-department selection at project creation (FR-PRJ-04). Partially captured; explicitly incomplete. | Before build |
+| **OQ-10** | Is the commitment from a delivery partner unit given as a date, a duration, or informally — and is it given in writing? | Determines whether FR-EXT-08 evidence capture is realistic or whether the committed date will usually be the TPM's own record of a verbal agreement. Recorded position: a date is given per task, and it is routinely missed (§4.4). | Before build |
+| **OQ-11** | Do the Smart Operations sections and Information Security work to any published service standard or turnaround target? | If one exists, overrun should be measured against it as well as against the per-task committed date, which materially strengthens the §4.4 case. | Before build |
+| **OQ-12** | Should delivery partner units eventually record their own commitment dates and completion directly, rather than the TPM recording on their behalf? | Removes the single largest data-quality risk in this area (RISK-10) but requires accounts for units explicitly excluded from the first release (§8.2). Candidate for Phase 4. | Phase 2 review |
+| **OQ-13** | Is the Director of GD of AI willing to sponsor per-unit delay reporting before it is produced? | RISK-09 is the governing risk on §4.4. Producing the data without sponsorship risks the mechanism being shut down and damaging working relationships. | Before demonstration |
 
 ---
 
@@ -766,9 +931,10 @@ Enhancements deliberately deferred from Phase 1, in expected order of value:
 2. **Estimate-versus-actual tracking** — closes the loop on RISK-02 and improves estimation over time
 3. **Scenario planning** — multiple saved what-if scenarios, allowing options to be compared before a prioritisation decision is taken
 4. **Inter-project dependency modelling** — resolves ASM-10
-5. **Skill-based resource matching** — beyond role-based assignment
-6. **Vendor and contractor capacity** — extends the resource pool beyond GD of AI staff
-7. **Integration with existing Dubai Police systems** — removes duplicate data entry
+5. **Delivery partner self-recording** — units record their own commitment dates and completions directly, removing the data-quality risk of RISK-10 and the appearance of being measured by a third party (OQ-12)
+6. **Skill-based resource matching** — beyond role-based assignment
+7. **Vendor and contractor capacity** — extends the resource pool beyond Internal Applications staff
+8. **Integration with existing Dubai Police systems** — removes duplicate data entry
 
 ---
 
